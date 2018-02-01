@@ -32,15 +32,18 @@ def encode(s):
     global lock_code
     global lock_dat
     if lock_code != '':
+        t = ''
         for i in s:
             lock_pos += 1
             if lock_pos > len(lock_code):
                 lock_pos = 0
             if ((ord(i) in range(0,31)) or (ord(i) in range(128,255))):
-                this_dat = ord(i) & 15
-                i = chr((ord(i)) ^ ord(lock_code[lock_pos % len(lock_code)]) ^ lock_dat + 1)
-                lock_dat = this_dat
-    return s
+                i = ' '
+            this_dat = ord(i) & 15
+            t = t + chr((ord(i)) ^ ord(lock_code[lock_pos % len(lock_code)]) ^ lock_dat + 1)
+            lock_dat = this_dat
+    print(t)
+    return t
 
 def prepare(s1):
     s = ''
@@ -56,9 +59,9 @@ def prepare(s1):
                 s1 = s1[k - 1] ### This was originally lstr(s1,k - 1) 
     # remove excess spaces
     s2 = ''
-    for i in range(0,len(s1)):
+    for i in s1:
         if not (i in [' ','\b','\t','\n',',']):
-            s2 = s2 + s1[i]
+            s2 = s2 + i
             if s2 != '':
                 s = s + s2 # originally also added + ' '
                 s2 = ''
@@ -116,7 +119,7 @@ lock_code = ''
 k = random.randint(0,20) + 20
 for i in range(1,k):
    lock_code = lock_code + chr(random.randint(0,31) + 65)
-f2.write('#LOCK' + str(LOCKTYPE) + ' ' + lock_code)
+f2.write('#LOCK' + str(LOCKTYPE) + ' ' + lock_code + '\n')
 
 # decode lock-code
 for i in lock_code:
