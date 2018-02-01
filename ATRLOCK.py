@@ -12,13 +12,14 @@
 # TODO:
 # What is btrim()???
 # Figure out how check if a filename is valid().
-# Figure out where the read in line disappears, in encode() somewhere
-# Should encode() be adding spaces between all the characters like it currently is?
-# Find out of lstr() does what I expect
+# Why is the encode algorithm messing up?
+#   It is unlikely to be the algorithm itself
+#   Rather, something wrong with the formatting of the data given to it
 
-import os, pdb, random, sys, time
+import os, random, sys, time
 
 # REMOVE AFTER PORT IS COMPLETED
+import pdb
 from subprocess import call
 call(['rm','SNIPER.ATL']) 
 
@@ -37,10 +38,10 @@ def encode(s):
             lock_pos += 1
             if lock_pos > len(lock_code):
                 lock_pos = 0
-            if ((ord(i) in range(0,31)) or (ord(i) in range(128,255))):
+            if ((ord(i) in range(0,32)) or (ord(i) in range(128,255))):
                 i = ' '
             this_dat = ord(i) & 15
-            t = t + chr((ord(i)) ^ ord(lock_code[lock_pos % len(lock_code)]) ^ lock_dat + 1)
+            t = t + chr((ord(i) ^ (ord(lock_code[lock_pos - 1]) ^ lock_dat)) + 1)
             lock_dat = this_dat
     print(t)
     return t
@@ -63,7 +64,7 @@ def prepare(s1):
         if not (i in [' ','\b','\t','\n',',']):
             s2 = s2 + i
             if s2 != '':
-                s = s + s2 # originally also added + ' '
+                s = s + s2 + ' ' # originally also added + ' '
                 s2 = ''
     if s2 != '':
         s = s + s2
@@ -119,6 +120,7 @@ lock_code = ''
 k = random.randint(0,20) + 20
 for i in range(1,k):
    lock_code = lock_code + chr(random.randint(0,31) + 65)
+lock_code = 'VMWVRXAJZ\\M]RGRYG^T]AD[GIMTA]DILPZ\\'
 f2.write('#LOCK' + str(LOCKTYPE) + ' ' + lock_code + '\n')
 
 # decode lock-code
