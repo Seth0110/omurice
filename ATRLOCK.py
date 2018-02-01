@@ -1,4 +1,4 @@
-pp#!/usr/bin/python3
+#!/usr/bin/python3
 
 # Copyright 2018 Seth Sevier
 
