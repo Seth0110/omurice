@@ -1,6 +1,6 @@
 #!/usr/bin/python3
 
-# Copyright 2018 Seth Sevier
+# Copyright 2018 Seth Sevier, Viktoria Koscinski, Myron Xu, Amurldin Jamalli, Steffan Sampson
 
 # Permission is hereby granted, free of charge, to any person obtainning a copy of this software and associated documentation files (the "Software"), to deal in the Software without restriction, including without limitation the rights to use, copy, modify, merge, publish, distribute, sublicense, and/or sell copies of the Software, and to permit persons to whom the Software is furnished to do so, subject to the following conditions:
 
@@ -10,11 +10,9 @@
 
 ### Python3 port of ATRLOCK.PAS ###
 # TODO:
-# What is btrim()???
-# Figure out how check if a filename is valid().
-# Why is the encode algorithm messing up?
-#   It is unlikely to be the algorithm itself
-#   Rather, something wrong with the formatting of the data given to it
+# Implement a filename validation function
+# Encryption algoritm not identical to ATRLOCK.EXE output
+# - encode() function has been proven correct
 
 import os, random, sys, time
 
@@ -38,12 +36,11 @@ def encode(s):
             lock_pos += 1
             if lock_pos > len(lock_code):
                 lock_pos = 0
-            if ((ord(i) in range(0,32)) or (ord(i) in range(128,255))):
+            if ((ord(i) in range(0,32)) or (ord(i) in range(128,256))):
                 i = ' '
             this_dat = ord(i) & 15
             t = t + chr((ord(i) ^ (ord(lock_code[lock_pos - 1]) ^ lock_dat)) + 1)
             lock_dat = this_dat
-    print(t)
     return t
 
 def prepare(s1):
@@ -57,15 +54,16 @@ def prepare(s1):
             if i == ';':
                 k = i
             if k > 0:
-                s1 = s1[k - 1] ### This was originally lstr(s1,k - 1) 
+                s1 = s1[k - 1]
+                
     # remove excess spaces
     s2 = ''
     for i in s1:
         if not (i in [' ','\b','\t','\n',',']):
             s2 = s2 + i
-            if s2 != '':
-                s = s + s2 + ' ' # originally also added + ' '
-                s2 = ''
+        elif s2 != '':
+            s = s + s2 + ' '
+            s2 = ''
     if s2 != '':
         s = s + s2
     return s
@@ -109,7 +107,6 @@ f2.write(';---------------------------------------------------------------------
 for s in f1:
     if s[0] == ';':
         f2.write(s)
-        s = f1.readline()
     else: break
 
 # lock header
@@ -117,20 +114,22 @@ f2.write(';---------------------------------------------------------------------
 f2.write('; ' + os.path.basename(fn1) + ' Locked on ' + time.strftime('%d/%m/%Y') + '\n')
 f2.write(';------------------------------------------------------------------------------\n')
 lock_code = ''
-k = random.randint(0,20) + 20
+k = random.randint(0,21) + 20
 for i in range(1,k):
    lock_code = lock_code + chr(random.randint(0,31) + 65)
-lock_code = 'VMWVRXAJZ\\M]RGRYG^T]AD[GIMTA]DILPZ\\'
+lock_code = 'VMWVRXAJZ\\M]RGRYG^T]AD[GIMTA]DILPZ\\' # remove line when done testing
 f2.write('#LOCK' + str(LOCKTYPE) + ' ' + lock_code + '\n')
 
 # decode lock-code
+j = ''
 for i in lock_code:
-    i = chr(ord(i) - 65)
+    j = j + chr(ord(i) - 65)
 
 print('Encoding "' + fn1 + '"...')
 
 
 # encode robot
+s = s[1:-1]
 if len(s) > 0:
     write_line(s.upper())
 f1.seek(0)
@@ -138,6 +137,7 @@ for s1 in f1:
     # read line
     s1 = f1.readline()
     s1 = s1.upper() # still needs a btrim function
+    s1 = s1[1:-1]
     # write line
     write_line(s1)
 
