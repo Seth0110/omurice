@@ -10,9 +10,12 @@
 
 ### Python3 port of ATRLOCK.PAS ###
 # TODO:
-# Implement a filename validation function
+# Change software license to original
+# Implement a filename validation function valid()
+#
 # Encryption algoritm not identical to ATRLOCK.EXE output
-# - encode() function has been proven correct
+# - The logic of this program is equivalent to ATRLOCK.PAS
+# - To get this to work, we need to figure out how '#' and 'V' makes '7'
 
 import os, random, sys, time
 
