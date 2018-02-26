@@ -5,8 +5,8 @@
 import os
 import math
 
-# def textxy(x,y,s)       Graphical
-# def coltextxy(x,y,s,c)  Graphical
+# def textxy(x,y,s)       GRAPHICAL
+# def coltextxy(x,y,s,c)  GRAPHICAL
 
 # convert a 4 bit unsigned int to a hex string
 def hexnum(num):
@@ -146,18 +146,11 @@ def rstr(s1,l):
         return s1[-l:]
 
 # def FlushKey: # not needed in Python
-
-# needs review: what is mem[]?
-def calibrate_timing():
-    return 0
-
-# needs review: after calibrate_timing is working
-def time_delay(n): # n:integer
-    if delay_per_sec == 0:
-        calibrate_timing()
+# def calibrate_timing() GRAPHICAL
+# def time_delay(n) GRAPHICAL
 
 # needs review: this looks true to original, but the given ATR2.REG file returns false?
-# THE ORIGINAL EDITS A GLOBAL VARIABLE, THIS RETURNS A BOOLEAN
+# THE ORIGINAL EDITS A GLOBAL VARIABLE THAT'S NEVER DECLARED IN THE FILE, THIS RETURNS A BOOLEAN
 # checks validity of the ATR2.REG file
 def check_registration():
     registered = False
@@ -176,24 +169,32 @@ def check_registration():
             registered = True
     return registered
 
-# # CHECK: how do these operations work with negative numbers?
-# # CHECK: rolls the bits in n left k times
-# def rol(n,k):
-#     s = bin(n)[2:]
-#     k = k % len(s)
-#     return s[k:] + s[:k]
+# rolls the bits in n left k times
+def rol(n,k):
+    s = _bin(n)
+    k = k % len(s)
+    return s[k:] + s[:k]
 
-# # CHECK: rolls the bits in n right k times
-# # def ror(n,k)
+# rolls the bits in n right k times
+def ror(n,k):
+    s = _bin(n)
+    if k > len(s):
+        return len(s) * '0'
+    return s[len(s)-k:] + s[:len(s)-k]
 
-# USE MULTIPLY AND DIVIDE BY 2^N INSTEAD
 # shifs the bits in n left k times
 def sal(n,k):
-    return n << k
+    s = _bin(n)
+    if k > len(s):
+        return len(s) * '0'
+    return s[k:] + k * '0'
 
 # shifts the bits in n right k times
 def sar(n,k):
-    return n >> k
+    s = _bin(n)
+    if k > len(s):
+        return len(s) * '0'
+    return k * '0' + s[:-k]
 
 # graphical functions
 # def viewport(x1,y1,x2,y2)
@@ -313,7 +314,7 @@ def str2int(s):
 def distance(x1,y1,x2,y2): # real
     return abs(math.sqrt(((y1-y2) ** 2) + ((x1 - x2) ** 2)))
 
-# needs review: what type of inputs does this take?
+# needs review: what do the input variables mean?
 def find_angle(xx,yy,tx,ty): # all reals in original code
     q = 0
     v = abs(round(tx-xx))
@@ -342,7 +343,7 @@ def find_angle(xx,yy,tx,ty): # all reals in original code
         q = math.pi / 2
     return q
 
-# needs review: no idea what this does at all
+# needs review: no idea what this does at all but I'm fairly sure it's correct
 def find_anglei(xx,yy,tx,ty):
     i = round(find_angle(xx,yy,tx,ty) / math.pi * 128 + 256)
     while (i < 0):
