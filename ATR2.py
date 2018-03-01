@@ -1,19 +1,13 @@
-# comments contained within {} are comments from the original code
-# but not all comments from original code are included
+# with the ATR2FUNC import, will we need to ATR2FUNC.function() for all of them?
 
-# special Python expressions that are variables in the original code are
-# changed by adding an underscore in the front (ex: _yield, _quit)
+import ATR2FUNC
+import random#for random.seed()
+import time#for random
+import os#for checking files
 
-# In python, global variables may be accessed from within a function,
-# but to change those variables, the global keyword must be used
+###globals: line 69- (skipping simulator/graphics variables)
 
-import random # for random
-import time # for random
-import os # for checking files
-
-# globals: lines 69-128 (commenting out some simulator/graphics variables)
-
-# Constant - Python has no equivalent of const
+#Constant - Python has no equivalent of const
 progname = 'AT-Robots'
 version = '2.11'
 cnotice1 = 'Copyright 1997 ''99, Ed T. Toton III'
@@ -25,23 +19,23 @@ locked_ext = '.ATL'
 config_ext = '.ATS'
 compile_ext = '.CMP'
 report_ext = '.REP'
-_T = True
-_F = False
-minint = -32768 # {maxint=32787 is alrady defined by turbo pascal}
+_T = true
+_F = false
+minint = -32768 #{maxint=32787 is alrady defined by turbo pascal}
 
-# {debugging/compiler}
+#{debugging/compiler}
 show_code = _F
 compile_by_line = _F
 max_var_len = 16
 debugging_compiler = _F
 
-# {robots}
-max_robots = 31 # {starts at 0, so total is max_robots+1}
-max_code = 1023 # {same here}
-max_op = 3 # {etc...}
+#{robots}
+max_robots = 31  #{starts at 0, so total is max_robots+1}
+max_code = 1023  #{same here}
+max_op = 3  #{etc...}
 stack_size = 256
 stack_base = 768
-max_ram = 1023 # {but this does start at 0 (odd #, 2^n-1)}
+max_ram = 1023  #{but this does start at 0 (odd #, 2^n-1)}
 max_vars = 256
 max_labels = 256
 acceleration = 4
@@ -59,20 +53,7 @@ max_config_points = 12
 max_mines = 63
 mine_blast = 35
 
-# simulator and graphics
-screen_scale = 0.46
-screen_x = 5
-screen_y = 5
-robot_scale = 6
-default_delay = 20
-default_slice = 5
-#mine_circle = trunc(mine_blast*screen_scale)+1;
-#blast_circle = trunc(blast_radius*screen_scale)+1;
-#mis_radius = trunc(hit_range/2)+1;
-max_robot_lines = 8
-#Gray50 : FillPatternType = ($AA, $55, $AA, $55, $AA, $55, $AA, $55);
-
-# general settings
+#general settings
 _quit = False
 report = False
 show_cnotice = False
@@ -80,14 +61,13 @@ kill_count = 0
 report_type = 0 
 
 
-# Classes - "records" in original code
-class op_rec: # line 132-134
+class op_rec: #line 132-134
     op = [0 for i in range(0, max_op + 1)]
     
-prog_type = [op_rec() for i in range(0, max_code + 1)] # line 135
-# note: must be careful when accessing values of prog_type if we need attribute of class
+prog_type = [op_rec() for i in range(0, max_code + 1)] #line 135
+#note: must be careful when accessing values of prog_type if we need attribute of class
 
-class config_rec: # line 136-138
+class config_rec: #line 136-138
     scanner = 0 
     weapon = 0
     armor = 0
@@ -96,14 +76,14 @@ class config_rec: # line 136-138
     shield = 0
     mines = 0
 
-class mine_rec: # line 139-143
+class mine_rec: #line 139-143
     x = 0
     y = 0
     detect = 0
-    _yield = 0 # yield is a special expression, substituting _yield
+    _yield = 0 #yield is a special expression, subbing _yield
     detonate = False
 
-class robot_rec: # line 144-166
+class robot_rec: #line 144-166 - originally a "record"
     is_locked = False
     mem_watch = 0
     x = 0
@@ -177,9 +157,9 @@ class robot_rec: # line 144-166
     code = prog_type
     ram = [0 for i in range(0, max_ram + 1)]
     mine = [mine_rec() for i in range(0, max_mines + 1)]
-    errorlog = open('errorlog', 'a').close() # each robot has an errorlog file
+    errorlog = open(errorlog, 'a').close() 
 
-class missile_rec: # line 169-172
+class missile_rec: #line 169-172 - originally a "record"
     x = 0
     y = 0
     lx = 0
@@ -193,66 +173,205 @@ class missile_rec: # line 169-172
     lrad = 0
     max_rad = 0
 
-# {--robot variables--}
-# lines 176-179
-num_robots = 0
-robot = [] # line 178 - array of robot_rec
-robot = [robot_rec() for i in range(-2, max_robots + 3)]
-missile = [] # line 179 - array of missile_rec
+missile = []#line 179 - array or missiles, max_missiles = 1023
 missile = [missile_rec() for i in range(0, max_missiles + 1)]
 
-# {--compiler variables--}
-# lines 181-189
-f = open('f', 'a').close()
-numvars = 0
-numlabels = 0
-maxcode = 0
-lock_pos = 0
-lock_dat = 0
-varname = ['' for i in range(0, max_vars)]
-varloc = [0 for i in range(0, max_vars)]
-labelname = ['' for i in range(0, max_vars)]
-labelnum = [0 for i in range(0, max_labels)]
-show_source = False
-compile_only = False
-lock_code = ''
+robot = []
+robot = [robot_rec() for i in range(-2, max_robots + 3)]
 
-# {--simulator/graphics variables--}
-# lines 191-204
-bout_over = False
-step_mode = 0
-temp_mode = 0
-step_count = 0
-step_loop = False
-old_shields = False
-insane_missiles = False
-debug_info = False
-windoze = False
-no_gfx = False
-logging_errors = False
-timing = False
-show_arcs = False
-game_delay = 0
-time_slice = 0
-insanity = 0
-update_timer = 0
-max_gx = 0
-max_gy = 0
-stats_mode = 0
-game_limit = 0
-game_cycle = 0
-matches = 0
-played = 0
-executed = 0
 
-# {--general settings--}
-# lines 206-208
-_quit = False
-report = False
-show_cnotice = False
-kill_count = 0
-report_type = 0
+def operand(n,m):
+    s = chr(n)
+    #    Microcode:
+    #  0 = instruction, number, constant
+    #  1 = variable, memory access
+    #  2 = :label
+    #  3 = !label (unresolved)
+    #  4 = !label (resolved)
+    # 8h mask = inderect addressing (enclosed in [])
+    x = m & 7
+    if x == 1:
+        s = '@' + s
+    if x == 2:
+        s = ':' + s
+    if x == 3:
+        s = '$' + s
+    if x == 4:
+        s = '!' + s
+    else:
+        s = cstr(n)
+    if (m and 8) > 0:
+        s = '[' + s + ']'
+    return s
 
+def mnemonic(n,m):
+    s = chr(n)
+    if m == 0:
+        if n == 0:
+            s = 'NOP'
+        elif n == 1:
+            s = 'ADD'
+        elif n == 2:
+            s = 'SUB'
+        elif n == 3:
+            s = 'OR'
+        elif n == 4:
+            s = 'AND'
+        elif n == 5:
+            s = 'XOR'
+        elif n == 6:
+            s = 'NOT'
+        elif n == 7:
+            s = 'MPY'
+        elif n == 8:
+            s = 'DIV'
+        elif n == 9:
+            s = 'MOD'
+        elif n == 10:
+            s = 'RET'
+        elif n == 11:
+            s = 'CALL'
+        elif n == 12:
+            s = 'JMP'
+        elif n == 13:
+            s = 'JLS'
+        elif n == 14:
+            s = 'JGR'
+        elif n == 15:
+            s = 'JNE'
+        elif n == 16:
+            s = 'JE'
+        elif n == 17:
+            s = 'SWAP'
+        elif n == 18:
+            s = 'DO'
+        elif n == 19:
+            s = 'LOOP'
+        elif n == 20:
+            s = 'CMP'
+        elif n == 21:
+            s = 'TEST'
+        elif n == 22:
+            s = 'MOV'
+        elif n == 23:
+            s = 'LOC'
+        elif n == 24:
+            s = 'GET'
+        elif n == 25:
+            s = 'PUT'
+        elif n == 26:
+            s = 'INT'
+        elif n == 27:
+            s = 'IPO'
+        elif n == 28:
+            s = 'OPO'
+        elif n == 29:
+            s = 'DELAY'
+        elif n == 30:
+            s = 'PUSH'
+        elif n == 31:
+            s = 'POP'
+        elif n == 32:
+            s = 'ERR'
+        elif n == 33:
+            s = 'INC'
+        elif n == 34:
+            s = 'DEC'
+        elif n == 35:
+            s = 'SHL'
+        elif n == 36:
+            s = 'SHR'
+        elif n == 37:
+            s = 'ROL'
+        elif n == 38:
+            s = 'ROR'
+        elif n == 39:
+            s = 'JZ'
+        elif n == 40:
+            s = 'JNZ'
+        elif n == 41:
+            s = 'JGE'
+        elif n == 42:
+            s = 'JLE'
+        elif n == 43:
+            s = 'SAL'
+        elif n == 44:
+            s = 'SAR'
+        elif n == 45:
+            s = 'NEG'
+        elif n == 46:
+            s = 'JTL'
+        else:
+            s = 'XXX'
+    else:
+        s = operand(n,m)
+        return s
+
+# errorlog has not been declared yet
+def log_error(n,i,ov):
+    if not logging_errors:
+        return
+    else:
+        for n in robot:
+            if i == 1:
+                s = 'Stack full - Too many CALLs?'
+            elif i == 2:
+                s = 'Label not found. Hmmm.'
+            elif i == 3:
+                s = 'Can\'t assign value - Tisk tisk.'
+            elif i == 4:
+                s = 'Illegal memory reference'
+            elif i == 5:
+                s = 'Stack empty - Too many RETs?'
+            elif i == 6:
+                s = 'Illegal instruction. How bizarre.'
+            elif i == 7:
+                s = 'Return out of range - Woops!'
+            elif i == 8:
+                s = 'Divide by zero'
+            elif i == 9:
+                s = 'Unresolved !label. WTF?'
+            elif i == 10:
+                s = 'Invalid Interrupt Call'
+            elif i == 11:
+                s = 'Invalid Port Access'
+            elif i == 12:
+                s = 'Com Queue empty'
+            elif i == 13:
+                s = 'No mine-layer, silly.'
+            elif i == 14:
+                s = 'No mines left'
+            elif i == 15:
+                s = 'No shield installed - Arm the photon torpedoes instead. :-)'
+            elif i == 16:
+                s = 'Invalid Microcode in instruction.'
+            else:
+                s = 'Unknown error'
+
+            print(errorlog + '<' + i + '> ' + s + ' (Line #' + ip + ') [Cycle: ' + game_cycle + ', Match: ' + played + '/' + matches + ']\n');
+            print(errorlog + ' ' + mnemonic(code[ip].op[0] + code[ip].op[3] and 15) + '  ' + 
+                  operand(code[ip].op[1] + (code[ip].op[3] >> 4) & 15) + ' +  ' + 
+                  operand(code[ip].op[2] + (code[ip].op[3] >> 8) & 15))
+            if ov != '':
+                print(errorlog + '    (Values: ' + ov + ')') # was writeln
+            else:
+                print(errorlog); # was writeln
+                
+            print(errorlog + ' AX=' + addrear(chr(ram[65])+',',7))
+            print(errorlog + ' BX=' + addrear(chr(ram[66])+',',7))
+            print(errorlog + ' CX=' + addrear(chr(ram[67])+',',7))
+            print(errorlog + ' DX=' + addrear(chr(ram[68])+',',7))
+            print(errorlog + ' EX=' + addrear(chr(ram[69])+',',7))
+            print(errorlog + ' FX=' + addrear(chr(ram[70])+',',7))
+            print(errorlog + ' Flags=' + ram[64] + '\n') # was writeln
+            print(errorlog + ' AX=' + addrear(hex(ram[65])+',',7))
+            print(errorlog + ' BX=' + addrear(hex(ram[66])+',',7))
+            print(errorlog + ' CX=' + addrear(hex(ram[67])+',',7))
+            print(errorlog + ' DX=' + addrear(hex(ram[68])+',',7))
+            print(errorlog + ' EX=' + addrear(hex(ram[69])+',',7))
+            print(errorlog + ' FX=' + addrear(hex(ram[70])+',',7))
+            print(errorlog + ' Flags=' + hex(ram[64]))
+            print(errorlog)
 
 def max_shown(): # line 347
     if stats_mode == 1:
@@ -261,8 +380,35 @@ def max_shown(): # line 347
         return 32
     else:
         return 6
-    
+            
+def graph_check(n):
+    ok = True
+    if (not graphix) or (n<0) or (n>num_robots) or (n>=max_shown):
+        ok:=false;
+    return ok
 
+# def robot_graph(n): GRAPHICAL
+
+# def update_armor(n):
+# def update_heat(n):
+# def robot_error(n,i,ov):        
+# def update_lives(n):
+def update_cycle_window():
+    if not graphix:
+        print('\t' + 'Match ' + played +  '/' + matches + ', Cycle: ' + ATR2FUNC.zero_pad(game_cycle,9))
+    else:
+        # viewport(480,440,635,475)
+        # setfillstyle(1,0)
+        # bar(59,2,154,10)
+        # setcolor(7)
+        # outtextxy(75,03,zero_pad(game_cycle,9))
+        
+def setscreen():
+    if not graphix:
+        quit()
+    # BIG GRAPHICAL PART GOES HERE
+    
+# def graph_mode(on):
 def prog_error(n, ss): # line 569 in original code
     #graph_mode(False) # graphics related
     #textcolor(15) # graphics related
@@ -324,7 +470,193 @@ def prog_error(n, ss): # line 569 in original code
     print(s)
     print()
     exit()
-    
+
+# def print_code(n,p):  
+def check_plen(plen):
+    if plen > maxcode:
+        prog_error(16,'\t\nMaximum program length exceeded, (Limit: ' + cstr(maxcode+1) + ' compiled lines)')
+
+# def compile(n,filename):
+
+# needs review: how does this function actually access config.attribute?
+def robot_config(n):
+    for r in robot:
+        if config.scanner == 5:
+            r.scanrange = 1500
+        elif config.scanner == 4:
+            r.scanrange = 1000
+        elif config.scanner == 3:
+            r.scanrange = 700
+        elif config.scanner == 2:
+            r.scanrange = 500
+        elif config.scanner == 1:
+            r.scanrange = 350
+        else:
+            r.scanrange = 250
+            
+        if config.weapon == 5:
+            r.shotstrength = 1.5
+        elif config.weapon == 4:
+            r.shotstrength = 1.35
+        elif config.weapon == 3:
+            r.shotstrength = 1.2
+        elif config.weapon == 2:
+            r.shotstrength = 1
+        elif config.weapon == 1:
+            r.shotstrength = 0.8
+        else:
+            shotstrength = .5
+            
+        if config.armor == 5:
+            r.damageadj = 0.66
+            r.speedadj = 0.66
+        elif config.armor == 4:
+            r.damageadj = 0.77
+            r.speedadj = 0.75
+        elif config.armor == 3:
+            r.damageadj = 0.83
+            r.speedadj = 0.85
+        elif config.armor == 2:
+            r.damageadj = 1
+            r.speedadj = 1
+        elif config.armor == 1:
+            r.damageadj = 1.5
+            r.speedadj = 1.2
+        else:
+            r.damageadj = 2
+            r.speedadj = 1.33
+            
+        if config.engine == 5:
+            r.speedadj = speedadj * 1.5
+        elif config.engine == 4:
+            r.speedadj = speedadj * 1.35
+        elif config.engine == 3:
+            r.speedadj = speedadj * 1.2
+        elif config.engine == 2:
+            r.speedadj = speedadj * 1
+        elif config.engine == 1:
+            r.speedadj = speedadj * 0.8
+        else:
+            r.speedadj = speedadj * 0.5
+            
+        # heatsinks are handled seperately
+        if config.mines == 5:
+            r.mines = 24
+        elif config.mines == 4:
+            r.mines = 16
+        elif config.mines == 3:
+            r.mines = 10
+        elif config.mines == 2:
+            r.mines = 6
+        elif config.mines == 1:
+            r.mines = 4
+        else:
+            mines = 2
+            config.mines = 0
+            
+        r.shields_up = False
+        if (config.shield < 3) or (config.shield > 5):
+            config.shield = 0
+        if (config.heatsinks < 0) or (config.heatsinks > 5):
+            config.heatsinks = 0
+        
+def reset_software(n):
+    for r in robot:
+        for i in range(0,max_ram):
+            ram[i] = 0
+            ram[71] = 768
+            r.thd = r.hd
+            r.tspd = 0
+            r.scanarc = 8
+            r.shift = 0
+            r.err = 0
+            r.overburn = False
+            r.keepshift = False
+            r.ip = 0
+            r.accuracy = 0
+            r.meters = 0
+            r.delay_left = 0
+            r.time_left = 0
+            r.shields_up = False
+            
+# def reset_hardware(n):
+def reset_hardware(n): # lines 1212-1256
+    for i in range(1, max_robot_lines + 1):
+        robot[n].ltx[i] = 0
+        robot[n].tx[i] = 0
+        robot[n].lty[i] = 0
+        robot[n].ty[i] = 0
+        while True:
+            robot[n].x = random.randint(0, 999)
+            robot[n].y = random.randint(0, 999)
+            dd = 1000
+            for i in range(0, num_robots + 1):
+                if robot[i].x < 0:
+                    robot[i].x = 0
+                if robot[i].x > 1000:
+                    robot[i].x = 1000
+                if robot[i].y < 0:
+                    robot[i].y = 0
+                if robot[i].y > 1000:
+                    robot[i].y = 1000
+                d = distance(robot[n].x, robot[n].y, robot[i].x, robot[i].y) #ATR2FUNC
+                if((robot[i].armor > 0) and (i != n) and (d < dd)):
+                    dd = d
+            if dd > 32:
+                break
+        for i in range(0, max_mines + 1):
+            robot[n].mine[i].x = -1 
+            robot[n].mine[i].y = -1
+            robot[n].mine[i]._yield = 0
+            robot[n].mine[i].detonate = False
+            robot[n].mine[i].detect = 0
+        robot[n].lx = -1
+        robot[n].ly = -1
+        robot[n].hd = random.randint(0, 255)
+        robot[n].shift = 0
+        robot[n].lhd = robot[n].hd + 1
+        robot[n].lshift = robot[n].shift + 1
+        robot[n].spd = 0
+        robot[n].speed = 0
+        robot[n].cooling = False
+        robot[n].armor = 100
+        robot[n].larmor = 0
+        robot[n].heat = 0
+        robot[n].lheat = 1
+        robot[n].match_shots = 0
+        robot[n].won = False
+        robot[n].last_damage = 0
+        robot[n].last_hit = 0
+        robot[n].transponder = n + 1
+        robot[n].meters = 0
+        robot[n].shutdown = 400 
+        robot[n].shields_up = False
+        robot[n].channel = robot[n].transponder
+        robot[n].startkills = robot[n].kills
+        robot_config(n) # line 1141
+        
+def create_robot(n, filename): # lines 1297-1323
+    if maxavail < sizeof(robot_rec): 
+    # sizeof gives number of bytes occupied by robot_rec
+    # maxavail returns largest dynamic variable that can be allocated at the time, what is the Python equivalent?
+        prog_error(9, base_name(no_path(filename))) # where is base_name defined?
+    robot[n] # original code has with robot[n]^ do... is it different here?
+    init_robot(n) # needs to be ported - line 1258
+    filename = ucase(btrim(filename))
+    if filename == base_name(filename):
+        if filename[0] == '?':
+            filename = filename + locked_ext
+        else:
+            filename = filename + robot_ext
+    if filename[0] == '?':
+        filename = rstr(filename, len(filename) - 1)
+    robot[n].fn = base_name(no_path(filename))
+    _compile(n, filename) # needs to be ported - line 881
+    robot_config(n) # ported 
+    k = robot[n].config.scanner + robot[n].config.armor + robot[n].config.weapon + robot[n].config.engine + robot[n].config.heatsinks + robot[n].config.shield + robot[n].config.mines
+    if k > max_config_points:
+        prog_error(21, cstr(k) + '/' + cstr(max_config_points))
+    #end
     
 def shutdown(): # lines 1325-1351
     #graph_mode(False) # graphics
@@ -348,12 +680,12 @@ def shutdown(): # lines 1325-1351
             robot[i].errorlog = open(robot[i].errorlog, 'a').close() # needs to be checked 
     quit()
 
-
+# # def delete_compile_report():
 def delete_compile_report(): # originally lines 1353-1357
     if os.path.isfile(main_filename + compile_ext):
         os.remove(main_filename + compile_ext)
-      
         
+# # def write_compile_report():
 def write_compile_report(): # lines 1359-1376
     f = open(main_filename + compile_ext, 'w') # local variable
     f.write(str(num_robots + 1)) 
@@ -365,8 +697,8 @@ def write_compile_report(): # lines 1359-1376
     print("All compiles successful!")
     print()
     shutdown()
-        
     
+# # def parse_param(s):
 def parse_param(s): # originally line 1379
     global step_mode
     global game_delay
@@ -488,10 +820,9 @@ def parse_param(s): # originally line 1379
         prog_error(10, '')
     if not found:
         prog_error(8, s)
-    #end parse_params()
-                 
-        
- 
+    #end parse_param(s)
+
+# # def init():
 def init():#originally line 1452
     global step_mode
     global logging_errors
@@ -620,3 +951,140 @@ def init():#originally line 1452
         print("Freemem: ", memavail) # where is memavail defined? 
         print()
 # end init
+
+# def draw_robot(n): GRAPHICAL
+
+# what on earth is ram[]?!?
+def get_from_ram(n,i,j):
+    for r in robot:
+        if (i < 0) or (i > (max_ram + 1) + (((max_code + 1) << 3) - 1)):
+            k = 0
+            r.robot_error(n,4,cstr(i))
+        else:
+            if i <= max_ram:
+                k = ram[i]
+            else:
+                l = i - max_ram - 1
+                k = code[l >> 2].op[l & 3]
+    return k
+
+def get_val(n,c,o):
+    k = 0
+    for r in robot:
+        j = (r.code[c].op[max_op] >> (4*o)) & 15
+        i = r.code[c].op[o]
+        if (j & 7) == 1:
+            k = get_from_ram(n,i,j)
+        else:
+            k = i
+        if (j & 8) > 0:
+            k = get_from_ram(n,k,j)
+    get_val = k
+
+def put_val(n,c,o,v):
+    k:=0
+    i:=0
+    j:=0
+    for r in robot:
+        j = (r.code[c].op[max_op] >> (4 * o)) & 15
+        i = r.code[c].op[o]
+        if (j and 7) == 1:
+            if (i<0) or (i>max_ram):
+                robot_error(n,4,cstr(i))
+            else:
+                if (j and 8) > 0:
+                    i:=ram[i];
+                    if (i < 0) or (i > max_ram):
+                        robot_error(n,4,cstr(i))
+                    else:
+                        ram[i] = v
+                else:
+                    ram[i] = v
+        else:
+            robot_error(n,3,'');
+
+def push(n,v):
+    for r in robot:
+        if (ram[71] >= stack_base) and (ram[71] < (stack_base + stack_size)):
+            ram[ram[71]] = v
+            ram[71] = ram[71] + 1
+        else:
+            robot_error(n,1,cstr(ram[71]))
+            
+def pop(n):
+    for r in robot:
+        if (ram[71] > stack_base) and (ram[71] <= (stack_base + stack_size)):
+            ram[71] = ram[71] - 1
+            k = ram[ram[71]];
+        else:
+            robot_error(n,5,cstr(ram[71]));
+    return k;
+
+def find_label(n,l,m):
+    k = -1;
+    for r in robot:
+        if m == 3:
+            robot_error(n,9,'')
+        elif m == 4:
+            k:=l
+        else:
+            for i in range(plen,0,-1):
+                j = code[i].op[max_op] & 15
+                if (j=2) and (code[i].op[0]=l) then k:=i;
+    return k
+
+def init_mine(n,detectrange,size):
+    for r in robot:
+        k = -1
+        for i in range(0,max_mines):
+            if ((mine[i].x < 0) or (mine[i].x > 1000) or (mine[i].y < 0) or (mine[i].y > 1000) or (mine[i].yield <= 0)) and (k < 0):
+                k = i
+            if k >= 0:
+                mine[k].x = x
+                mine[k].y = y
+                mine[k].detect = detectrange
+                mine[k].yield = size
+                mine[k].detonate = false
+                click
+
+def count_missiles():
+    k = 0
+    for i in range(0,max_missiles):
+        if missile[i].a > 0:
+            k = k + 1
+    return k
+
+# def init_missile(xx,yy,xxv,yyv,dir,s,blast,ob):
+# def damage(n,d,physical):
+# def scan(n):
+# def com_transmit(n,chan,data):
+# def com_receive(n):
+# def in_port(n,p,time_used):
+# def out_port(n,p,v,time_used):
+# def call_int(n,int_num,time_used):
+# def jump(n,o,inc_ip):
+# def update_debug_bars():
+# def update_debug_system():
+# def update_debug_registers():
+# def update_debug_flags():
+# def update_debug_memory():
+# def update_debug_code():
+# def update_debug_window():
+# def init_debug_window():
+# def close_debug_window():
+# def gameover():
+# def toggle_graphix():
+# def invalid_microcode(n,ip):
+# def process_keypress(c):
+# def execute_instruction(n):
+# def do_robot(n):
+# def do_mine(n,m):
+# def do_missile(n):
+# def victor_string(k,n):
+# def show_statistics():
+# def score_robots():
+# def init_bout():
+# def bout():
+# def write_report():
+# def begin_window():
+# def main():
