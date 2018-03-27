@@ -1,7 +1,5 @@
 #!/usr/bin/python
 
-# possible problem: TP6 assumes 16 bit integers
-
 import os
 import math
 
@@ -119,17 +117,17 @@ def repchar(c,i):
             s = s + c
     return s
 
-# trim off the leftmost character
+# trim off the left whitespace
 def ltrim(s1):
-    return s1[1:len(s1)]
+    return s1.lstrip()
 
-# trim off the rightmost character
+# trim off the right whitespace
 def rtrim(s1):
-    return s1[0:len(s1)-1]
+    return s1.rstrip()
 
-# trim off the first and last character
+# trim off whitespace from both sides
 def btrim(s1):
-    return s1[1:-1]
+    return ltrim(rtrim(s1))
 
 # return a string of the l leftmost characters
 def lstr(s1,l):
@@ -149,7 +147,6 @@ def rstr(s1,l):
 # def calibrate_timing() GRAPHICAL
 # def time_delay(n) GRAPHICAL
 
-# needs review: this looks true to original, but the given ATR2.REG file returns false?
 # THE ORIGINAL EDITS A GLOBAL VARIABLE THAT'S NEVER DECLARED IN THE FILE, THIS RETURNS A BOOLEAN
 # checks validity of the ATR2.REG file
 def check_registration():
@@ -160,7 +157,7 @@ def check_registration():
         reg_num = f.readline()
         f.close()
         w = 0
-        s = reg_name.upper()
+        s = btrim(reg_name.upper())
         for i in s:
             print(i)
             w = w + ord(i)
@@ -293,7 +290,7 @@ def hex2int(s): # s:string
 
 # converts a string to an integer
 def str2int(s):
-    s = s.upper()
+    s = btrim(s.upper())
     print('s:'+s)
     if s == '':
         return 0
@@ -347,7 +344,7 @@ def find_angle(xx,yy,tx,ty): # all reals in original code
 def find_anglei(xx,yy,tx,ty):
     i = round(find_angle(xx,yy,tx,ty) / math.pi * 128 + 256)
     while (i < 0):
-        inc(i,256)
+        i = i + 256
     i = i & 255
     return i
 
