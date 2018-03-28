@@ -1,9 +1,22 @@
-# with the ATR2FUNC import, will we need to ATR2FUNC.function() for all of them?
+#!/usr/bin/python
 
-import ATR2FUNC
-import random # for random.seed()
-import time # for random
-import os # for checking files
+### A very incomplete to-do list ###
+# Check variable scope, global variables must have a global declaration at the beginning of the function
+# Amruldin's code has something wrong that's messed up the indentation
+# The way robots are currently implemented will not work correctly with Python's variable scoping rules
+#     They are created within a function, and as soon as that function is complete it kills them
+#     We will need to change the robot code so that it is declared in a scope where we can actually use it
+#     Abandon hope all ye who attempt to fix this...
+### Lower priority stuff ###
+# Fix licensing
+# Figure out how to make it so this can automagically run on a platform that isnt GNU/Linux
+# Check all the for loops and make sure they iterate the correct number of times
+# Check array accessing works properly
+
+from ATR2FUNC import * # without this we would need to have an ATR2FUNC. before every function!
+import random
+import time
+import os
 
 # globals: line 69- (skipping simulator/graphics variables)
 
@@ -21,7 +34,8 @@ compile_ext = '.CMP'
 report_ext = '.REP'
 _T = True
 _F = False
-minint = -32768 # {maxint=32787 is alrady defined by turbo pascal}
+maxint = 32787
+minint = -32768
 
 # {debugging/compiler}
 show_code = _F
@@ -388,11 +402,92 @@ def graph_check(n):
     return ok
 
 # def robot_graph(n): GRAPHICAL
+def robot_graph(n):
+    if stats_mode == 1:
+        viewport(480,4+n*35,635,37+n*35)
+        max_gx = 155
+        max_gy = 33
+    elif stats_mode:
+        viewport(480,4+n*13,635,15+n*13)
+        max_gx = 155
+        max_gy = 11
+    else:
+        viewport(480,4+n*70,n*70)
+        max_gx = 155
+        max_gy = 66
+    setfillstyle(1,robot_color(n))
+    setcolor(robot_color(n))
 
 # def update_armor(n):
+def update_armor(n):
+    if graph_check(n) & step_mode <=0:
+        #needs more work
+        robot[n].n
+        robot_graph(n)
+        if armor>0:
+            if stats_mode == 1:
+                bar(30,13,29+armor,18)
+                bar(88,3,87+(armor shr 2),8)
+                else:
+                    bar(30,25,29+armor,30)
+        setfillstyle(1,8)
+        if armor < 100:
+            if stats_mode == 1:
+                bar(30+armor,13,129,18)
+            elif stats_mode == 2:
+                bar(88+(armor shr 2), 3,111,8)
+            else:
+                bar(30+armor,25,129,30)
+                
 # def update_heat(n):
-# def robot_error(n,i,ov):        
+def update_heat(n):
+    if graph_check(n) & step_mode <= 0:
+        robot[n].n
+        robot_graph(n)
+        if heat > 5:
+            if stats_mode == 1:
+                bar(30,23,29+(heat div 5), 28)
+            elif stats_mode == 2
+                bar(127,3,126+(heat div 20),8)
+            else:
+                bar(30,35,29+(heat div 5),40)
+        setfillstyle(1,8)
+        if heat<500:
+            if stats_mode == 1:
+                bar(30,(heat div 5),23,129,28)
+            elif stats_mode == 2:
+                bar(127+(heat div 20), 3,151,8) # find *(heat div 20)
+            else:
+                bar(30+(heat div 5), 35,129,40)
+                
+# def robot_error(n,i,ov):
+def robot_error(n,i,ov):
+    if graph_check(n) & step_mode<=0:
+        robot[n].n    # robot[n]^ find out
+        if stats_mode == 0:
+            robot_graph(n)
+            setfillstyle(1,0)
+            bar(66,56,154,64)
+            setcolor(robot_color(n))
+            outtextxy(66,56,addrear(str(i),7+hex(i)))
+            chirp # what is chirp
+        if logging_errors:
+            log_error(n,i,ov)
+            error_count +=1
+            
 # def update_lives(n):
+def update_lives(n):
+    if graph_check(n) & stats_mode == 0 & step_mode<=:
+        robot[n].n # Check with Confer
+        robot_graph(n)
+        setcolor(robot_color(n)-8)
+        setfillstyle(1,0)
+        bar(11,46,'K:')  # check K:
+        outtextxy(11,46,'K:')
+        outtextxy(29,46,zero_pad(kills,4))
+        outtextxy(80,46,'D:')   # check D:
+        outtextxy(98,46,zero_pad(deaths,4))
+
 def update_cycle_window():
     if not graphix:
         print('\t' + 'Match ' + played +  '/' + matches + ', Cycle: ' + ATR2FUNC.zero_pad(game_cycle,9))
@@ -409,6 +504,15 @@ def setscreen():
     # BIG GRAPHICAL PART GOES HERE
     
 # def graph_mode(on):
+def graph_mode(on):
+    if on and <> graphix:
+        Graph_VGA
+        cleardevice
+        graphix = True
+    else:
+        if !on & graphix:
+            closegraph
+            graphix = False
 
 def prog_error(n, ss): # lines 569-610
     #graph_mode(False) # graphics related
@@ -473,7 +577,602 @@ def prog_error(n, ss): # lines 569-610
     exit()   
 
 
-# def print_code(n,p):  
+# def print_code(n,p):
+def print_code(n,p):
+    i = 0
+    print(hex(p)+': ')
+    for i in range(0,max_op):
+        print(zero_pad(robot[n].code[p].op[i],5), ' ')
+    write('=  ')
+    for i in range(0,max_op):
+        print(hex(robot[n].code[p].op[i]),'h ')
+    print('\n')
+    print('\n')
+
+def parse1(n,p,s): # s is of parsetype
+    robot[n].n
+    for i in range(0,-1):
+        k = 0
+        found = False
+        opcode=0
+        microcode=0
+        i = btrim(ucase(i))  # needs to talk to Confer or check btrim
+        indirect = False
+        
+        if s[i] == '':
+            opcode = 0
+            microcode =0
+            found = True
+        if str(s[i],1)=='[' & (str(s[i],1)=']'):
+            s[i] = copy(s[i],2,len(s[i])-2) # check copy
+            indirect = True
+        
+        # labels
+        if not found & (s[i][1]='!'):
+            ss=s[i]
+            ss = btrim(rstr(ss,len(ss)-1))
+            if numlabels > 0:
+                for i in range(1,numlabels):
+                    if ss == labelname[i]:
+                        found = True
+                        if labelnum[i] > 0:
+                            opcode = labelnum[i]
+                            microcode = 4    #resovled !label
+                        else:
+                            opcode = i  
+                            microcode = 3    # unresovled !label
+        if not found:
+            numlabels +=1
+            if numlabels>max_labels:
+                prog_error(15, ' ')
+            else:
+                labelname[numlabels] = ss
+                labelnum[numlabels] = -1
+                opcode = numlabels
+                microcode = 3   # unresolved !label
+                found = True
+        
+        #variables
+        if numvars > 0 & not found:
+            
+            for j in range(1,numvars):
+                if s[i] = varname[j]:
+                    opcode = varloc[j]
+                    microcode = 1   # variables
+                    found = True
+        
+        # instructions
+        
+        if s[i] == 'NOP':
+            opcode = 000
+            found = True
+        if s[i] == 'ADD':
+            opcode = 001
+            found = True
+        if s[i] == 'SUB':
+            opcode = 002
+            found = True
+        if s[i] == 'OR':
+            opcode = 003
+            found = True
+        if s[i] == 'AND':
+            opcode = 004
+            found = True
+        if s[i] == 'XOR':
+            opcode = 005
+            found = True
+        if s[i] == 'NOT':
+            opcode = 006
+            found = True
+        if s[i] == 'MPY':
+            opcode = 007
+            found = True
+        if s[i] == 'DIV':
+            opcode == 007
+            found = True
+        if s[i] == 'MOD':
+            opcode= 009
+            foudn= True
+        if s[i] == 'RET':
+            opcode = 010
+            found = True
+        if s[i] == 'RETURN':
+            opcode = 010
+            found = True
+        if s[i] == 'GSB':
+            opcode = 011
+            found = True
+        if s[i] == 'GOSUB':
+            opcode = 011
+            found = True
+        if s[i] == 'CALL':
+            opcode = 011
+            found = True
+        if s[i] == 'JMP':
+            opcode = 012
+            found = True
+        if s[i] == 'JUMP':
+            opcode = 012
+            found = True
+        if s[i] == 'GOTO':
+            opcode = 012
+            found = True
+        if s[i] == 'JLS':
+            opcode = 013
+            found = True
+        if s[i] == 'JB':
+            opcode = 013
+            found = True
+        if s[i] == 'JGR':
+            opcode = 014
+            found = True
+        if s[i] == 'JA':
+            opcode = 014
+            found = True
+        if s[i] == 'JNE':
+            opcode = 015
+            found = True
+        if s[i] == 'JEQ':
+            opcode = 016
+            found = True
+        if s[i] == 'JE':
+            opcode = 016
+            found = True
+        if s[i] == 'XCHG':
+            opcode = 017
+            found = True
+        if s[i] == 'SWAP':
+            opcode = 017
+            found = True
+        if s[i] == 'DO':
+            opcode = 018
+            found= True
+        if s[i] == 'LOOP':
+            opcode = 019
+            found = True
+        if s[i] == 'CMP':
+            opcode = 020
+            found = True
+        if s[i] == 'TEST':
+            opcode = 021
+            found = True
+        if s[i] == 'SET':
+            opcode = 022
+            found = True
+        if s[i] == 'MOV':
+            opcode = 022
+            found = True
+        if s[i] == 'LOC':
+            opcode = 023
+            found = True
+        if s[i] == 'ADDR':
+            opcode = 023
+            found = True
+        if s[i] == 'GET':
+            opcode = 024
+            found= True
+        if s[i] == 'PUT':
+            opcode = 025
+            found = True
+        if s[i] == 'INT':
+            opcode = 026
+            found = True
+        if s[i] == 'IPO':
+            opcode = 027
+            found = True
+        if s[i] == 'IN':
+            opcode = 027
+            found = True
+        if s[i] == 'OPO':
+            opcode = 028
+            found = True
+        if s[i] == 'OUT':
+            opcode = 028
+            found = True
+        if s[i] == 'DEL':
+            opcode = 029
+            found = True
+        if s[i] == 'DELAY':
+            opcode = 029
+            found = True
+        if s[i] == 'PUSH':
+            opcode = 030
+            found = True
+        if s[i] == 'POP':
+            opcode = 031
+            found = True
+        if s[i] == 'ERR':
+            opcode = 032
+            found = True
+        if s[i] == 'ERROR':
+            opcode = 032
+            found = True
+        if s[i] == 'INC':
+            opcode = 033
+            found = True
+        if s[i] == 'DEC':
+            opcode = 034
+            found = True
+        if s[i] == 'SHL':
+            opcode = 035
+            found = True
+        if s[i] == 'SHR':
+            opcode = = 036
+            found = True
+        if s[i] == 'ROL':
+            opcode = 037
+            found = True
+        if s[i] == 'ROR':
+            opcode = 037
+            found = True
+        if s[i] == 'JZ':
+            opcode = 039
+            found = True
+        if s[i] == 'JNZ':
+            opcode 040
+            found = True
+        if s[i] == 'JAE':
+            opcode = 041
+            found = True
+        if s[i] == 'JGE':
+            opcode = 041
+            found = True
+        if s[i] == 'JLE':
+            opcode = 042
+            found = True
+        if s[i] == 'JBE':
+            opcode = 042
+            found = True
+        if s[i] == 'SAL':
+            opcode = 043
+            found = True
+        if s[i] == 'SAR':
+            opcode = 044
+            found = True
+        if s[i] == 'NEG':
+            opcode = 045
+            found = True
+        if s[i] == 'JTL':
+            opcode = 046
+            found = True
+        
+        
+        # Registers 
+        if s[i] == 'COLCNT':
+            opcode = 008
+            microcode = 01
+            found = True
+        if s[i] == 'METERS':
+            opcode = 009
+            microcode = 01
+            found = True
+        if s[i] == 'COMBASE':
+            opcode = 010
+            microcode = 01
+            found = True
+        if s[i] == 'COMEND':
+            opcode = 011
+            microcode = 01
+            found = True
+        if s[i] == 'FLAGS':
+            opcode = 064
+            microcode = 01
+        if s[i] == 'AX':
+            opcode = 064
+            microcode = 01
+            found = True
+        if s[i] == 'BX':
+            opcode = 066
+            microcode = 01
+            found = True
+        if s[i] == 'CX':
+            opcode = 067
+            microcode = 01
+            found = True
+        if s[i] == 'DX':
+            opcode = 068
+            microcode = 01
+            found = True
+        if s[i] == 'EX':
+            opcode = 069
+            microcode = 01
+            found = True
+        if s[i] == 'FX':
+            opcode = 070
+            microcode = 01
+            found = True
+        if s[i] == 'SP':
+            opcode = 071
+            microcode = 01
+            found = True
+        
+        #Constants
+        
+        if s[i] == 'MAXINT':
+            opcode = 32767
+            microcode = 0
+            found = True
+            
+        
+        if s[i] == 'MININT':
+            opcode = 32768
+            microcode = 0
+            found = True
+        
+        if s[i] == 'P_SPEDOMETER':
+            opcode = 01
+            microcode = 0
+            found = True
+        if s[i] == 'P_HEAT':
+            opcode = 02
+            microcode = 0
+            found = True
+            
+        if s[i] == 'P_COMPASS':
+            opcode = 03 
+            microcode = 0
+            found = True
+        
+        if s[i] == 'P_TANGLE':
+            opcode = 04
+            microcode = 0
+            found = True
+        
+        if s[i] == 'P_TURRENT_OFS':
+            opcode = 04
+            microcode = 0
+            found = True
+        if s[i] == 'P_THEADING':
+            opcode = 05
+            microcode = 0
+            found = True
+        if s[i] == 'P_TURRENT_ABS':
+            opcode = 05
+            microcode = 0
+            found = True
+        
+        if s[i] == 'P_ARMOR':
+            opcode = 06
+            microcode = 0
+            found = True
+        
+        if s[i] == 'P_DAMAGE':
+            opcode = 06
+            microcode = 0
+            found = True
+        if s[i] == 'P_SCAN':
+            opcode = 07
+            microcode = 0
+            found = True
+        if s[i] == 'P_ACCURACY':
+            opcode = 08
+            microcode = 0
+            found = True
+        if s[i] == 'P_RADAR':
+            opcode = 09
+            microcode = 0
+            found = True
+        if s[i] == 'P_RANDOM':
+            opcode = 10
+            microcode = 0
+            found = True
+        if s[i] == 'P_RAND':
+            opcode = 10
+            microcode = 0
+            found = True
+        if s[i] == 'P_THROTTLE':
+            opcode = 11
+            microcode = 0
+            found = True
+        
+        if s[i] == 'P_TROTATE':
+            opcode = 12
+            microcode = 0
+            found = True
+        if s[i] == 'P_OFS_TURRENT':
+            opcode = 12
+            microcode = 0
+            found = True
+        if s[i] == 'P_TAIM':
+            opcode = 13
+            microcode = 0
+            found = True
+        if s[i] == 'P_ABS_TURRENT':
+            opcode = 13
+            microcode = 0
+            found = True
+        if s[i] == 'P_STEERLING':
+            opcode = 14
+            microcode = 0
+            found = True
+        if s[i] == 'P_WEAP':
+            opcode = 15
+            microcode = 0
+            found = True
+        if s[i] == 'P_WEAPON':
+            opcode = 15
+            microcode = 0
+            found = True
+        if s[i] == 'P_FIRE':
+            opcode = 15
+            microcode = 0
+            found = True
+        if s[i] == 'P_SONAR':
+            opcode = 16
+            microcode = 0
+            found = True
+        if s[i] == 'P_ARC':
+            opcode = 17
+            microcode = 0
+            found = True
+        if s[i] == 'P_SCANARC':
+            opcode = 17
+            microcode = 0
+            found = True
+        if s[i] == 'P_OVERBURN':
+            opcode = 18
+            microcode = 0
+            found = True
+        if s[i] == 'P_TRANSPONDER':
+            opcode = 19
+            microcode = 0
+            found = True
+        if s[i] == 'P_SHUTDOWN':
+            opcode = 20
+            microcode = 0
+            found = True
+        if s[i] == 'P_CHANNEL':
+            opcode = 21
+            microcode = 0
+            found = True
+        if s[i] == 'P_MINELAYER':
+            opcode = 22
+            microcode = 0
+            found = True
+        if s[i] == 'P_MINETRIGGER':
+            opcode = 23
+            microcode = 0
+            found = True
+        if s[i] == 'P_SHIELD':
+            opcode = 24
+            microcode = 0
+            found = True
+        if s[i] == 'P_SHIELDS':
+            opcode = 24
+            microcode = 0
+            found = True
+        if s[i] == 'I_DESTRUCT':
+            opcode = 0
+            microcode = 0
+            found = True
+        if s[i] == 'I_RESET':
+            opcode = 01
+            microcode = 0
+            found = True
+        if s[i] == 'I_LOCATE':
+            opcode = 02
+            microcode = 0
+            found = True
+        if s[i] == 'I_KEEPSHIFT':
+            opcode = 03
+            microcode = 0
+            found = True
+        if s[i] == 'I_OVERBURN':
+            opcode = 04
+            microcode = 0
+            found = True
+        if s[i] == 'I_ID':
+            opcode = 05
+            microcode = 0
+            found = True
+        if s[i] == 'I_TIMER':
+            opcode = 06
+            microcode = 0
+            found = True
+        if s[i] == 'I_ANGLE':
+            opcode = 07
+            microcode = 0
+            found = True
+        if s[i] == 'I_TID':
+            opcode = 08
+            microcode = 0
+            found = True
+        if s[i] == 'I_TARGETID':
+            opcode = 08
+            microcode = 0
+            found = True
+        if s[i] == 'I_TINFO':
+            opcode = 09
+            microcode = 0
+            found = True
+        if s[i] == 'I_TARGETINFO':
+            opcode = 09
+            microcode = 0
+            found = True
+        
+        if s[i] == 'I_GINFO':
+            opcode = 10
+            microcode = 0
+            found = True
+        if s[i] == 'I_GAMEINFO':
+            opcode = 10
+            microcode = 0
+            found = True
+        if s[i] == 'I_RINFO':
+            opcode = 11
+            microcode = 0
+            found = True
+        if s[i] == 'I_ROBOTINFO':
+            opcode = 11
+            microcode = 0
+            found = True
+        if s[i] == 'I_COLLISIONS':
+            opcode = 13
+            microcode = 0
+            found = True
+        if s[i] == 'I_RESETCOLCNT':
+            opcode = 13
+            microcode = 0
+            found = True
+        
+        if s[i] == 'I_TRANSMIT':
+            opcode = 14
+            microcode = 0
+            found = True
+        
+        if s[i] == 'I_RECEIVE':
+            opcode = 15
+            microcode = 0
+            found = True
+        if s[i] == 'I_DATAREADY':
+            opcode = 16
+            microcode = 0
+            found = True
+        if s[i] == 'I_CLEARCOM':
+            opcode = 17
+            microcode = 0
+            found = True
+        if s[i] == 'I_KILLS':
+            opcode = 18
+            microcode = 0
+            found = True
+        if s[i] == 'I_DEATHS':
+            opcode = 18
+            microcode = 0
+            found = True
+        if s[i] == 'I_CLEARMETERS':
+            opcode = 19
+            microcode = 0
+            found = True
+        
+        #memory addresses
+        if (not found) && (s[i][1] == '@') && (s[i][2] in range(0,9)):
+            opcode = str2int(rstr(s[i], len(s[i])-1))
+            if(opcode < 0) || (opcode>(max_ram+1)+((max_code+1) shl 3)-1):
+                
+                # check shl with Confer
+                prog_error(3,s[i])
+                microcode = 1 # variable
+                found = True
+                
+                #numbers
+                if (not found) && (s[i][1] in range(0,9,-)):
+                    opcode = str2int(s[i])
+                    found = True
+                    
+                if found:
+                    code[p].op[i] = opcode
+                    if indirect:
+                        microcode = microcode or 8     # check or
+                        code[p].op[max_op] = code[p].op[max_op] or (microcode shl (i*4)) # check
+                elif s[i] <>'':
+                    prog_error(2,s[i])
+    
+    if show_code:
+        print_code(n,p)
+    if compile_by_line:
+        readkey
+
 def check_plen(plen):
     if plen > maxcode:
         prog_error(16,'\t\nMaximum program length exceeded, (Limit: ' + cstr(maxcode+1) + ' compiled lines)')
@@ -1746,6 +2445,23 @@ def call_int(n,int_num,time_used):
         robot_error(n,10,cstr(int_num))
 
 # def jump(n,o,inc_ip):
+def jump(n,o,inc_ip):
+    i = 0
+    j = 0
+    k = 0
+    l = 0
+    loc = 0
+    
+    robot[n]
+    loc = find_label(n,get_val(n,ip,0), code[ip].op[max_op] shr (o*4))
+    
+    # what is shr
+    if loc >=0 && loc <= plen:
+        inc_ip = False
+        ip =loc
+    else:
+        robot_error(n,2,cstr(loc))
+
 # def update_debug_bars():
 # def update_debug_system():
 # def update_debug_registers():
@@ -2351,6 +3067,72 @@ def do_mine(n, m): # lines 3121-3176
                 round(x*screen_scale)+screen_x-1,round(y*screen_scale)+screen_y);'''
 
 # def do_missile(n):
+def do_missile(n):
+    missile[n]
+    if a == 0:
+        break
+    else:
+        if a ==1:
+            if (x<-20) | (x>1020) | (y<-20) | (y>1020):
+                a = 0
+                
+                # move missile
+                llx = lx
+                lly = ly
+                lx = x
+                ly = y
+                
+                if a > 0:
+                    hd = (hd+256) && 255
+                    xv = sint[hd] * mspd
+                    yv = -cost[hd]*mspd
+                    x = x+xv
+                    y = y +yv
+                    
+                    
+                #look for hit on a robot
+                k =1
+                l = mixint
+                for i in len(num_robots):
+                    if(i.armor>0) && (i <>source):
+                        d = distance(lx,ly,robot[i].x,robot[i].y)
+                        if (d<=mspd) && (r<hit_range) && (round(d)<=1):
+                            k= i
+                            l = round(d)
+                            dd = round(r)
+                            tx = xx
+                            ty = y
+                if k >= 0:
+                    x = tx
+                    y = ty
+                    a = 2
+                    rad = 0
+                    lrad = 0
+                    if source in range(0,num_robots):
+                        robot[source].last_hit = 0
+                        (robot[source].hits) + 1
+                    for i in range(0,num_robots):
+                        dd = round(distance(x,y,robot[i].x,robot[i].y))
+                        if dd <=hit_range:
+                            dam = round(abs(hit_range-dd)*mult)
+                            if dam <= 0:
+                                dam = 1
+                                kill_count = 0
+                            if robot[source].armor>0:
+                                source_alive = True
+                            else:
+                                source_alive = False
+                                damage(i,dam,False)
+                            if source in range(0,num_robots) && (i<> source):
+                                (robot[source].damage_tota,dam)+1
+                            if kill_count > 0 && source_alive && robot[source].armor <=0:
+                                kill_count -=1
+                            if kill_count > 0:
+                                robot[source].kills +=1
+                                kill_count +=1
+                                update_lives(source)
+    #draw missile
+
 # def victor_string(k,n):
 def victor_string(k, n): # lines 3284-3293
     s = ''
@@ -2363,6 +3145,90 @@ def victor_string(k, n): # lines 3284-3293
     return s
 
 # def show_statistics():
+    def show_statistics:
+        i = 0
+        j = 0
+        k =0
+        n = 0
+        sx = 0
+        sy = 0
+        
+        sx = 24
+        sy = 93-num_robots*3
+        
+        viewport(0,0,639,479)
+        box(sx+0,sy,sx+591,sy+102+num_robots*12)
+        hole(sx+004,sy+004,sx+587,sy+098+num_robots*12)
+        setfillpattern(gray50,1)
+        bar(sx+5,sy+5,sx+586,sy+97+num_robots*12)
+        setcolor(15)
+        
+        outtextxy(sx+16,sy+20, 'Robot        Scored wins Matches Armor kills death shots')
+        
+        outtextxy(sx+16,sy+30)
+        
+        n = -1
+        k =0
+        
+        for i in range(0,num_robots):
+            armor = robot[i].armor
+            if armor > 0 | armor == won:
+                k +=1
+        
+        for i in range(0,num_robots):
+            armor = robot[i].armor
+            
+            setcolor(robot_color(i))
+            if k==1 && n == i:
+                j =1
+            else:
+                j = 0
+                
+                
+                '''
+                  outtextxy(sx+016,sy+042+i*12,addfront(cstr(i+1),2)+' - '+addrear(fn,15)+cstr(j)
+               +addfront(cstr(wins),8)+addfront(cstr(trials),8)
+               +addfront(cstr(armor)+'%',9)+addfront(cstr(kills),7)
+               +addfront(cstr(deaths),8)+addfront(cstr(match_shots),9));
+                '''
+            outtextxy(sx+16,sy+42+i*12,addfront(str(i+1),2) +'- '+ addrear(fn,15) + str(j))
+        setcolor(15)
+        
+        outtextxy(sx+16,sy+64,num_robots*12,victor_string(k,n))
+        
+        if windoze:
+            outtextxy(sx+16,sy+76+num_robots*12, 'Press any key to continue...')
+            flushkey
+            readkey
+        
+        textcolor(15)
+        print(13+' ' + 13)
+        
+        print('\n Match', played, '/', matches, 'results')
+        
+        print('Robot       scored wins matches Armor kills death shots')
+        print('............................................')
+        
+        n = -1
+        k= 0
+        for i in range(0,num_robots):
+            armor= robot[i].armor
+            textcolor(robot_color[i])
+            
+            if k==1 && n==i:
+                j =1
+            else:
+                j =0
+                
+            print('''writeln(addfront(cstr(i+1),2)+' - '+addrear(fn,15)+cstr(j)
+             +addfront(cstr(wins),8)+addfront(cstr(trials),8)
+             +addfront(cstr(armor)+'%',9)+addfront(cstr(kills),7)
+             +addfront(cstr(deaths),8)+addfront(cstr(match_shots),9));''')
+            textcolor(15)
+            print('/n')
+            print(victor_string(k,n))
+            print('\n')
+
 # def score_robots():
 def score_robots(): # lines 3363-3376
     k = 0
@@ -2542,6 +3408,22 @@ def write_report(): # lines 3523-3543
     f.close()
     
 # def begin_window():
+def begin_window:
+    if (not graphix) | (not windoze):
+        break
+    setscreen
+    viewport(0,639,479)
+    box(100,150,539,200)
+    hole(105,155,534,195)
+    setfillpattern(gray50,1)
+    bar(105,155,534,195)
+    setcolor(15)
+    s = 'Press any to begin!'
+    outtextxy(320-((len(s) << 3) >> 1), 172,s)
+    flushkey
+    readkey
+    setscreen
+
 # def main():
 def main(): # lines 3563-3610
     if graphix: # defined in ATR2FUNC 
