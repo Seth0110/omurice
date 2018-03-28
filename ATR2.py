@@ -3,10 +3,6 @@
 ### A very incomplete to-do list ###
 # Check variable scope, global variables must have a global declaration at the beginning of the function
 # Amruldin's code has something wrong that's messed up the indentation
-# The way robots are currently implemented will not work correctly with Python's variable scoping rules
-#     They are created within a function, and as soon as that function is complete it kills them
-#     We will need to change the robot code so that it is declared in a scope where we can actually use it
-#     Abandon hope all ye who attempt to fix this...
 ### Lower priority stuff ###
 # Fix licensing
 # Figure out how to make it so this can automagically run on a platform that isnt GNU/Linux
