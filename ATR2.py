@@ -41,8 +41,7 @@
 # THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 ### A very incomplete to-do list ###
-# Check variable scope, global variables must have a global declaration at the beginning of the function
-# Amruldin's code has something wrong that's messed up the indentation
+# Amruldin's code has something wrong that's messed up the indentation?
 ### Lower priority stuff ###
 # Figure out how to make it so this can automagically run on a platform that isnt GNU/Linux
 # Check all the for loops and make sure they iterate the correct number of times
@@ -2133,7 +2132,6 @@ def damage(n,d,physical):
 
 # def scan(n):
 def scan(n): # lines 1915-1978
-    global maxint
     nn = -1
     _range = maxint
     if not (0 <= n <= num_robots):
@@ -2887,7 +2885,6 @@ def execute_instruction(n): # lines 2638-2980
 # def do_robot(n):
 def do_robot(n): # lines 2982-3119
     global executed
-    global maxint
     if (n < 0) or (n > num_robots):
         return
     if robot[n].armor <= 0:
@@ -3106,6 +3103,7 @@ def do_mine(n, m): # lines 3121-3176
 
 # def do_missile(n):
 def do_missile(n):
+    global kill_count
     missile[n]
     if a == 0:
         break
@@ -3283,7 +3281,6 @@ def score_robots(): # lines 3363-3376
 # def init_bout():
 def init_bout(): # lines 3378-3405
     global game_cycle
-    global maxint
     game_cycle = 0
     for i in range(0, max_missiles + 1):
         missile[i].a = 0
