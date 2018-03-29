@@ -1,7 +1,7 @@
 #!/usr/bin/python
 
 # Copyright (c) 1999, Ed T. Toton III. All rights reserved.
-
+#
 # Bug fixes and additional additions Copyright (c) 2014, William "Amos" Confer
 
 # Redistribution and use in source and binary forms, with or without
