@@ -45,14 +45,11 @@
 # (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF
 # THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
-from ATR2FUNC import * # without this we would need to have an ATR2FUNC. before every function!
+from ATR2FUNC import *
 import random
 import time
 import os
 
-# globals: line 69- (skipping simulator/graphics variables)
-
-# Constant - Python has no equivalent of const
 progname = 'AT-Robots'
 version = '2.11'
 cnotice1 = 'Copyright 1997 ''99, Ed T. Toton III'
@@ -69,19 +66,19 @@ _F = False
 maxint = 32787
 minint = -32768
 
-# {debugging/compiler}
+# debugging/compiler
 show_code = _F
 compile_by_line = _F
 max_var_len = 16
 debugging_compiler = _F
 
-# {robots}
-max_robots = 31  # {starts at 0, so total is max_robots+1}
-max_code = 1023  # {same here}
-max_op = 3  # {etc...}
+# robots
+max_robots = 31  # starts at 0, so total is max_robots + 1
+max_code = 1023  # same here
+max_op = 3  # etc...
 stack_size = 256
 stack_base = 768
-max_ram = 1023  # {but this does start at 0 (odd #, 2^n-1)}
+max_ram = 1023  # but this does start at 0 (odd #, 2 ^ n - 1)
 max_vars = 256
 max_labels = 256
 acceleration = 4
@@ -107,13 +104,13 @@ kill_count = 0
 report_type = 0 
 
 
-class op_rec: # line 132-134
+class op_rec:
     op = [0 for i in range(0, max_op + 1)]
     
-prog_type = [op_rec() for i in range(0, max_code + 1)] # line 135
+prog_type = [op_rec() for i in range(0, max_code + 1)]
 # note: must be careful when accessing values of prog_type if we need attribute of class
 
-class config_rec: # line 136-138
+class config_rec:
     scanner = 0 
     weapon = 0
     armor = 0
@@ -122,14 +119,14 @@ class config_rec: # line 136-138
     shield = 0
     mines = 0
 
-class mine_rec: # line 139-143
+class mine_rec:
     x = 0
     y = 0
     detect = 0
-    _yield = 0 # yield is a special expression, subbing _yield
+    _yield = 0
     detonate = False
 
-class robot_rec: # line 144-166 - originally a "record"
+class robot_rec:
     is_locked = False
     mem_watch = 0
     x = 0
@@ -205,7 +202,7 @@ class robot_rec: # line 144-166 - originally a "record"
     mine = [mine_rec() for i in range(0, max_mines + 1)]
     errorlog = open(errorlog, 'a').close() 
 
-class missile_rec: # line 169-172 - originally a "record"
+class missile_rec:
     x = 0
     y = 0
     lx = 0
@@ -219,7 +216,7 @@ class missile_rec: # line 169-172 - originally a "record"
     lrad = 0
     max_rad = 0
 
-missile = [] # line 179 - array or missiles, max_missiles = 1023
+missile = []
 missile = [missile_rec() for i in range(0, max_missiles + 1)]
 
 robot = []
@@ -353,7 +350,6 @@ def mnemonic(n,m):
         s = operand(n,m)
         return s
 
-# errorlog has not been declared yet
 def log_error(n,i,ov):
     if not logging_errors:
         return
@@ -419,7 +415,7 @@ def log_error(n,i,ov):
             print(errorlog + ' Flags=' + hex(ram[64]))
             print(errorlog)
 
-def max_shown(): # lines 347-354
+def max_shown():
     if stats_mode == 1:
         return 12
     elif stats_mode == 2:
@@ -433,7 +429,6 @@ def graph_check(n):
         ok = False
     return ok
 
-# def robot_graph(n): GRAPHICAL
 def robot_graph(n):
     if stats_mode == 1:
         viewport(480,4+n*35,635,37+n*35)
@@ -450,7 +445,6 @@ def robot_graph(n):
     setfillstyle(1,robot_color(n))
     setcolor(robot_color(n))
 
-# def update_armor(n):
 def update_armor(n):
     if graph_check(n) & step_mode <=0:
         #needs more work
@@ -471,7 +465,6 @@ def update_armor(n):
             else:
                 bar(30+armor,25,129,30)
                 
-# def update_heat(n):
 def update_heat(n):
     if graph_check(n) & step_mode <= 0:
         robot[n].n
@@ -492,25 +485,23 @@ def update_heat(n):
             else:
                 bar(30+(heat // 5), 35,129,40)
                 
-# def robot_error(n,i,ov):
 def robot_error(n,i,ov):
     if graph_check(n) & step_mode<=0:
-        robot[n].n    # robot[n]^ find out
+        robot[n].n
         if stats_mode == 0:
             robot_graph(n)
             setfillstyle(1,0)
             bar(66,56,154,64)
             setcolor(robot_color(n))
             outtextxy(66,56,addrear(str(i),7+hex(i)))
-            chirp # what is chirp
+            chirp
         if logging_errors:
             log_error(n,i,ov)
             error_count +=1
             
-# def update_lives(n):
 def update_lives(n):
     if graph_check(n) and stats_mode == 0 and step_mode <= 0:
-        robot[n].n # Check with Confer
+        robot[n].n
         robot_graph(n)
         setcolor(robot_color(n)-8)
         setfillstyle(1,0)
@@ -535,7 +526,6 @@ def setscreen():
         sys.exit()
     # BIG GRAPHICAL PART GOES HERE
     
-# def graph_mode(on):
 def graph_mode(on):
     if on and not graphix:
         Graph_VGA
@@ -546,7 +536,7 @@ def graph_mode(on):
             closegraph
             graphix = False
 
-def prog_error(n, ss): # lines 569-610
+def prog_error(n, ss):
     #graph_mode(False) # graphics related
     #textcolor(15) # graphics related
     print("Error #", n, ": ", end = '')
@@ -608,8 +598,6 @@ def prog_error(n, ss): # lines 569-610
     print()
     exit()   
 
-
-# def print_code(n,p):
 def print_code(n,p):
     i = 0
     print(hex(p)+': ')
@@ -621,14 +609,14 @@ def print_code(n,p):
     print('\n')
     print('\n')
 
-def parse1(n,p,s): # s is of parsetype
+def parse1(n,p,s):
     robot[n].n
     for i in range(0,-1):
         k = 0
         found = False
         opcode=0
         microcode=0
-        i = btrim(ucase(i))  # needs to talk to Confer or check btrim
+        i = btrim(ucase(i))
         indirect = False
         
         if s[i] == '':
@@ -639,7 +627,6 @@ def parse1(n,p,s): # s is of parsetype
             s[i] = copy(s[i],2,len(s[i])-2) # check copy
             indirect = True
         
-        # labels
         if (not found) and (s[i][1] == '!'):
             ss = s[i]
             ss = btrim(rstr(ss,len(ss)-1))
@@ -664,17 +651,14 @@ def parse1(n,p,s): # s is of parsetype
                 microcode = 3   # unresolved !label
                 found = True
         
-        #variables
-        if numvars > 0 and not found:
-            
+        if numvars > 0 and not found:            
             for j in range(1,numvars):
                 if s[i] == varname[j]:
                     opcode = varloc[j]
-                    microcode = 1   # variables
+                    microcode = 1
                     found = True
         
         # instructions
-        
         if s[i] == 'NOP':
             opcode = 000
             found = True
@@ -866,10 +850,8 @@ def parse1(n,p,s): # s is of parsetype
             found = True
         if s[i] == 'JTL':
             opcode = 46
-            found = True
-        
-        
-        # Registers 
+            found = True        
+        # registers 
         if s[i] == 'COLCNT':
             opcode = 8
             microcode = 1
@@ -917,15 +899,11 @@ def parse1(n,p,s): # s is of parsetype
             opcode = 71
             microcode = 1
             found = True
-        
-        #Constants
-        
+        # constants
         if s[i] == 'MAXINT':
             opcode = 32767
             microcode = 0
             found = True
-            
-        
         if s[i] == 'MININT':
             opcode = 32768
             microcode = 0
@@ -1176,18 +1154,14 @@ def parse1(n,p,s): # s is of parsetype
             opcode = 19
             microcode = 0
             found = True
-        
-        #memory addresses
+        # memory addresses
         if (not found) and (s[i][1] == '@') and (s[i][2] in range(0,9)):
             opcode = str2int(rstr(s[i], len(s[i])-1))
             if(opcode < 0) or (opcode > (max_ram + 1) + ((max_code + 1) << 3) - 1):
-                
-                # check shl with Confer
                 prog_error(3,s[i])
-                microcode = 1 # variable
+                microcode = 1
                 found = True
                 
-                #numbers
                 if (not found) and (s[i][1] in range(0,9,-1)):
                     opcode = str2int(s[i])
                     found = True
@@ -1195,7 +1169,7 @@ def parse1(n,p,s): # s is of parsetype
                 if found:
                     code[p].op[i] = opcode
                     if indirect:
-                        microcode = microcode or 8     # check or
+                        microcode = microcode | 8
                         code[p].op[max_op] = code[p].op[max_op] or (microcode << (i*4)) # check
                 elif s[i] !='':
                     prog_error(2,s[i])
@@ -1226,7 +1200,7 @@ def _compile(n,filename):
         for i in range(0, max_op):
             code[k].op[i] = 0
     plen = 0
-    f = open(filename,'r') # DOES THIS NEED TO HAVE WRITE PERMISSIONS
+    f = open(filename,'r') # DOES THIS NEED TO HAVE WRITE PERMISSIONS?
     s = ''
     linecount = 0
     for line in f: # This whole loop is probably bugged...
@@ -1413,7 +1387,7 @@ def reset_software(n):
             robot[n].time_left = 0
             robot[n].shields_up = False
             
-def reset_hardware(n): # lines 1212-1256
+def reset_hardware(n):
     for i in range(1, max_robot_lines + 1):
         robot[n].ltx[i] = 0
         robot[n].tx[i] = 0
@@ -1468,7 +1442,7 @@ def reset_hardware(n): # lines 1212-1256
         robot[n].startkills = robot[n].kills
         robot_config(n) 
 
-def init_robot(n): # lines 1258-1295
+def init_robot(n):
     robot[n].wins = 0
     robot[n].trials = 0
     robot[n].kills = 0
@@ -1505,10 +1479,9 @@ def init_robot(n): # lines 1258-1295
         for k in range(0, max_op + 1):
             robot[n].code[i].op[k] = 0
     reset_hardware(n) 
-    reset_software(n) # ported
+    reset_software(n)
     
-# # def create_robot(n, filename):
-def create_robot(n, filename): # lines 1297-1323
+def create_robot(n, filename):
     #if maxavail < sizeof(robot_rec): # commented out since this will not be a problem on today's computers
         #prog_error(9, base_name(no_path(filename))) 
     robot[n] 
@@ -1527,8 +1500,7 @@ def create_robot(n, filename): # lines 1297-1323
     if k > max_config_points:
         prog_error(21, cstr(k) + '/' + cstr(max_config_points))
 
-# # def shutdown():
-def shutdown(): # lines 1325-1351
+def shutdown():
     #graph_mode(False) # graphics
     if show_cnotice:
         #textcolor(3) # graphics
@@ -1550,13 +1522,11 @@ def shutdown(): # lines 1325-1351
             robot[i].errorlog = open(robot[i].errorlog, 'a').close()  
     quit()
     
-# # def delete_compile_report():
-def delete_compile_report(): # originally lines 1353-1357
+def delete_compile_report():
     if os.path.isfile(main_filename + compile_ext):
         os.remove(main_filename + compile_ext)
         
-# # def write_compile_report():
-def write_compile_report(): # lines 1359-1376
+def write_compile_report():
     f = open(main_filename + compile_ext, 'w') 
     f.write(str(num_robots + 1)) 
     for i in range(0, num_robots + 1):
@@ -1568,8 +1538,7 @@ def write_compile_report(): # lines 1359-1376
     print()
     shutdown()
 
-# # def parse_param(s):
-def parse_param(s): # lines 1379-1449
+def parse_param(s):
     global step_mode
     global game_delay
     global time_slice
@@ -1590,20 +1559,20 @@ def parse_param(s): # lines 1379-1449
     global logging_errors
     global insanity
     global num_robots
-    s1 = '' # local variable
-    found = False # local variable
-    s = btrim(ucase(s)) # ATR2FUNC functions
+    s1 = ''
+    found = False
+    s = btrim(ucase(s))
     if s == '':
         return
     if s[0] == '#':
-        fn = rstr(s, len(s) - 1) # ATR2FUNC for rstr, fn is local
+        fn = rstr(s, len(s) - 1)
         if fn == fn.split('.')[0]:  
             fn = fn + config_ext
         if not os.path.isfile(fn):
             prog_error(6, fn)
-        f = open(fn, 'r') # local variable f
+        f = open(fn, 'r')
         for line in f:
-            s1 = ucase(btrim(s1)) # ATR2FUNC
+            s1 = ucase(btrim(s1))
             if s1[0] == '#':
                 prog_error(7, s1)
             else:
@@ -1611,14 +1580,14 @@ def parse_param(s): # lines 1379-1449
         f.close()
         found = True
     elif s[0] in ['/', '-', '=']:
-        s1 = rstr(s, len(s) - 1) # ATR2FUNC
+        s1 = rstr(s, len(s) - 1)
         if s1[0] == 'X':
-            step_mode = value(rstr(s1, len(s1) - 1)) # ATR2FUNC
+            step_mode = value(rstr(s1, len(s1) - 1))
             found = True
             if step_mode == 0:
                 step_mode = 1
             if (step_mode < 1) or (step_mode > 9):
-                prog_error(24, rstr(s1, len(s1) - 1)) # ATR2FUNC
+                prog_error(24, rstr(s1, len(s1) - 1))
         if s1[0] == 'D':
             game_delay = value(rstr(s1, len(s1) - 1)) 
             found = True
@@ -1637,7 +1606,7 @@ def parse_param(s): # lines 1379-1449
         if s1[0] == 'S':
             show_source = False
             found = True
-        if s1[0] == 'G':
+        if s1[0] == 'G':n
             no_gfx = True
             found = True
         if s1[0] == 'R':
@@ -1695,8 +1664,7 @@ def parse_param(s): # lines 1379-1449
 
 # def draw_robot(n): GRAPHICAL
 
-# what on earth is ram[]?!?
-def get_from_ram(n,i,j):
+xdef get_from_ram(n,i,j):
     for r in robot:
         if (i < 0) or (i > (max_ram + 1) + (((max_code + 1) << 3) - 1)):
             k = 0
@@ -1798,7 +1766,7 @@ def count_missiles():
 
 def init_missile(xx,yy,xxv,yyv,dir,s,blast,ob):
     k = -1
-    # click() # global?
+    click()
     for i in range(max_missiles,0,-1):
         if missile[i].a == 0:
             k = i
@@ -1838,6 +1806,7 @@ def init_missile(xx,yy,xxv,yyv,dir,s,blast,ob):
                     ### repeat until keypressed; flushkey; end; DOES NOTHING IN PYTHON     
             
 def damage(n,d,physical):
+    global debug_info
     if (n < 0) or (n > num_robots) or (robot[n].armor <= 0):
         sys.exit()
     if robot[n].config.shield < 3:
@@ -1866,7 +1835,7 @@ def damage(n,d,physical):
                     h = 1
     if robot[n].d < 0:
         robot[n].d = 0
-    if debug_info: # is this a global?
+    if debug_info:
         print('\r' + zero_pad(game_cycle,5) + ' D ' + n + ': ' + robot[n].armor + '-' + robot[n].d + '=' + str(robot[n].armor - robot[n].d) + '           ')
        # repeat until keypressed; flushkey; end;
     if robot[n].d > 0:
@@ -1900,8 +1869,7 @@ def damage(n,d,physical):
             if k < blast_radius:
                 damage(i, round(abs(blast_radius - k) * m), False)
 
-# def scan(n):
-def scan(n): # lines 1915-1978
+def scan(n):
     nn = -1
     _range = maxint
     if not (0 <= n <= num_robots):
@@ -1962,8 +1930,7 @@ def scan(n): # lines 1915-1978
         robot[n].ram[13] = round(robot[nn].speed * 100)
     return _range
 
-# def com_transmit(n,chan,data):
-def com_transmit(n, chan, data): # lines 1980-1996
+def com_transmit(n, chan, data):
     for i in range(0, num_robots + 1):
         if (robot[i].armor > 0) and (i != n) and (robot[i].channel == chan):
             if (robot[i].ram[10] < 0) or (robot[i].ram[10] > max_queue):
@@ -1979,8 +1946,7 @@ def com_transmit(n, chan, data): # lines 1980-1996
             if (robot[i].ram[10] > max_queue):
                 robot[i].ram[10] = 0
                 
-# def com_receive(n):
-def com_receive(n): # lines 1998-2016
+def com_receive(n):
     k = 0
     if (robot[n].ram[10] != robot[n].ram[11]):
         if (robot[n].ram[10] < 0) or (robot[n].ram[10] > max_queue):
@@ -2036,7 +2002,7 @@ def in_port(n,p,time_used):
     if p == 16:
         nn = -1
         if show_arcs:
-            sonar_count = 2 # what is this??
+            sonar_count = 2
         time_used += 40
         l = -1
         k = 65535
@@ -2054,7 +2020,7 @@ def in_port(n,p,time_used):
         if robot[n].nn in range(0,num_robots):
             ram[5] = robot[robot[n].nn].transponder
     if p == 17:
-        v = scanarc # what is this??
+        v = scanarc
     if p == 18:
         if overburn:
             v = 1
@@ -2249,7 +2215,6 @@ def call_int(n,int_num,time_used):
     else:
         robot_error(n,10,cstr(int_num))
 
-# def jump(n,o,inc_ip):
 def jump(n,o,inc_ip):
     i = 0
     j = 0
@@ -2260,7 +2225,6 @@ def jump(n,o,inc_ip):
     robot[n]
     loc = find_label(n,get_val(n,ip,0), code[ip].op[max_op] >> (o*4))
     
-    # what is shr
     if loc >=0 and loc <= plen:
         inc_ip = False
         ip =loc
@@ -2274,6 +2238,7 @@ def jump(n,o,inc_ip):
 # def update_debug_memory():
 # def update_debug_code():
 # def update_debug_window():
+
 def update_debug_window(): # lines 2404-2428
     if graphix and (step_mode > 0):
         update_debug_bars # {armour + heat}
@@ -2285,8 +2250,8 @@ def update_debug_window(): # lines 2404-2428
         
 # def init_debug_window():
 # def close_debug_window():
-# def gameover():
-def gameover(): # lines 2578-2592
+
+def gameover():
     if (game_cycle >= game_limit) and (game_limit > 0):
         return True
     if game_cycle & 31 == 0:
@@ -2301,8 +2266,7 @@ def gameover(): # lines 2578-2592
     else:
         return False
     
-# def toggle_graphix():
-def toggle_graphix(): # lines 2594-2604
+def toggle_graphix():
     graph_mode(not graphix)
     if not graphix:
         #textcolor(7) # graphics-related
@@ -2311,8 +2275,7 @@ def toggle_graphix(): # lines 2594-2604
     else:
         setscreen
         
-# def invalid_microcode(n,ip):
-def invalid_microcode(n, ip): # lines 2606-2618
+def invalid_microcode(n, ip):
     invalid = False
     for i in range(0, 3):
         k = (robot[n].code[ip].op[max_op] >> (i << 2)) & 7 
@@ -2320,8 +2283,7 @@ def invalid_microcode(n, ip): # lines 2606-2618
             invalid = True
     return invalid
 
-# def process_keypress(c):
-def process_keypress(c): # lines 2620-2636
+def process_keypress(c):
     global timing
     global show_arcs
     global debug_info
@@ -2330,15 +2292,15 @@ def process_keypress(c): # lines 2620-2636
     global _quit
     global step_loop
     if c == 'C':
-        calibrate_timing # ATR2FUNC
+        calibrate_timing
     elif c == 'T':
         timing = not timing
     elif c == 'A':
         show_arcs = not show_arcs
     elif (c == 'S') or (c == 'Q'):
         if sound_on:
-            chirp # ATR2FUNC
-        sound_on = not sound_on # initialized in ATR2FUNC
+            chirp
+        sound_on = not sound_on
         if sound_on:
             chirp
     elif c == '$':
@@ -2351,8 +2313,7 @@ def process_keypress(c): # lines 2620-2636
         _quit = True
         step_loop = False  
 
-# def execute_instruction(n):
-def execute_instruction(n): # lines 2638-2980
+def execute_instruction(n):
     global step_count
     global step_loop
     global executed
@@ -2360,9 +2321,9 @@ def execute_instruction(n): # lines 2638-2980
     robot[n].ram[1] = robot[n].thd
     robot[n].ram[2] = robot[n].shift
     robot[n].ram[3] = robot[n].accuracy 
-    time_used = 1 # local variable
-    inc_ip = True # local variable
-    loc = 0 # local variable
+    time_used = 1
+    inc_ip = True
+    loc = 0
     if (robot[n].ip > robot[n].plen) or (robot[n].ip < 0):
         robot[n].ip = 0
     if invalid_microcode(n, robot[n].ip):
@@ -2652,8 +2613,7 @@ def execute_instruction(n): # lines 2638-2980
     if graphix and (n == 0) and (step_mode > 0):
         update_debug_window
 
-# def do_robot(n):
-def do_robot(n): # lines 2982-3119
+def do_robot(n):
     global executed
     if (n < 0) or (n > num_robots):
         return
@@ -2829,8 +2789,7 @@ def do_robot(n): # lines 2982-3119
     robot[n].larmor = robot[n].armor
     robot[n].cycles_lived += 1
 
-# def do_mine(n,m):
-def do_mine(n, m): # lines 3121-3176
+def do_mine(n, m):
     global kill_count
     if ((robot[n].mine[m].x >= 0) and (robot[n].mine[m].x <= 1000) and (robot[n].mine[m].y >= 0) and (robot[n].mine[m].y <= 1000) and (robot[n].mine[m]._yield > 0)):
         for i in range(0, num_robots + 1):
@@ -2872,7 +2831,6 @@ def do_mine(n, m): # lines 3121-3176
                 line(round(x*screen_scale)+screen_x+1,round(y*screen_scale)+screen_y,
                 round(x*screen_scale)+screen_x-1,round(y*screen_scale)+screen_y);'''
 
-# def do_missile(n):
 def do_missile(n):
     global kill_count
     missile[n]
@@ -2883,7 +2841,6 @@ def do_missile(n):
             if (x<-20) | (x>1020) | (y<-20) | (y>1020):
                 a = 0
                 
-                # move missile
                 llx = lx
                 lly = ly
                 lx = x
@@ -2895,8 +2852,7 @@ def do_missile(n):
                     yv = -cost[hd]*mspd
                     x = x+xv
                     y = y +yv
-                    
-                    
+                                        
                 #look for hit on a robot
                 k =1
                 l = mixint
@@ -2940,7 +2896,6 @@ def do_missile(n):
                                 update_lives(source)
     #draw missile
 
-# def victor_string(k,n):
 def victor_string(k, n): # lines 3284-3293
     s = ''
     if k == 1:
@@ -2951,36 +2906,35 @@ def victor_string(k, n): # lines 3284-3293
         s = 'No clear victor, match is a tie.'
     return s
 
-# def show_statistics():
-    def show_statistics():
-        i = 0
-        j = 0
-        k =0
-        n = 0
-        sx = 0
-        sy = 0
+def show_statistics():
+    i = 0
+    j = 0
+    k =0
+    n = 0
+    sx = 0
+    sy = 0
+    
+    sx = 24
+    sy = 93-num_robots*3
         
-        sx = 24
-        sy = 93-num_robots*3
-        
-        viewport(0,0,639,479)
-        box(sx+0,sy,sx+591,sy+102+num_robots*12)
-        hole(sx + 4, sy + 4, sx + 587, sy + 98 + num_robots * 12)
-        setfillpattern(gray50,1)
-        bar(sx+5,sy+5,sx+586,sy+97+num_robots*12)
-        setcolor(15)
-        
-        outtextxy(sx+16,sy+20, 'Robot        Scored wins Matches Armor kills death shots')
-        
-        outtextxy(sx+16,sy+30)
-        
-        n = -1
-        k =0
-        
-        for i in range(0,num_robots):
-            armor = robot[i].armor
-            if armor > 0 | armor == won:
-                k +=1
+    viewport(0,0,639,479)
+    box(sx+0,sy,sx+591,sy+102+num_robots*12)
+    hole(sx + 4, sy + 4, sx + 587, sy + 98 + num_robots * 12)
+    setfillpattern(gray50,1)
+    bar(sx+5,sy+5,sx+586,sy+97+num_robots*12)
+    setcolor(15)
+    
+    outtextxy(sx+16,sy+20, 'Robot        Scored wins Matches Armor kills death shots')
+    
+    outtextxy(sx+16,sy+30)
+    
+    n = -1
+    k =0
+    
+    for i in range(0,num_robots):
+        armor = robot[i].armor
+        if armor > 0 | armor == won:
+            k +=1
         
         for i in range(0,num_robots):
             armor = robot[i].armor
@@ -3036,8 +2990,7 @@ def victor_string(k, n): # lines 3284-3293
             print(victor_string(k,n))
             print('\n')
 
-# def score_robots():
-def score_robots(): # lines 3363-3376
+def score_robots():
     k = 0
     n = -1
     for i in range(0, num_robots + 1):
@@ -3049,8 +3002,7 @@ def score_robots(): # lines 3363-3376
         robot[n].wins += 1
         robot[n].won = True
         
-# def init_bout():
-def init_bout(): # lines 3378-3405
+def init_bout():
     global game_cycle
     game_cycle = 0
     for i in range(0, max_missiles + 1):
@@ -3069,11 +3021,13 @@ def init_bout(): # lines 3378-3405
         setscreen
     if graphix and (step_mode > 0):
         init_debug_window
-    #if not graphix:
-        #textcolor(7)
+    if not graphix:
+        textcolor(7)
 
 def bout():
-    # if quit then exit;
+    global _quit
+    if _quit:
+        sys.exit()
     played += 1
     init_bout()
     bout_over = False
@@ -3199,8 +3153,7 @@ def bout():
     score_robots()
     show_statistics()
     
-# def write_report():
-def write_report(): # lines 3523-3543
+def write_report():
     f = open(main_filename + report_ext, 'w')
     f.write(str(num_robots + 1)) 
     for i in range(0, num_robots + 2):
@@ -3214,7 +3167,6 @@ def write_report(): # lines 3523-3543
             f.write(str(robot[i].wins) + ' ' + str(robot[i].trials) + ' ' + str(robot[i].fn) + ' ')
     f.close()
     
-# def begin_window():
 def begin_window():
     if (not graphix) or (not windoze):
         pass # May need to be a sys.exit()
@@ -3231,9 +3183,8 @@ def begin_window():
     readkey
     setscreen
 
-# def main():
-def main(): # lines 3563-3610
-    if graphix: # defined in ATR2FUNC 
+def main():
+    if graphix:
         begin_window 
     if matches > 0:
         for i in range(1, matches + 1):
@@ -3246,7 +3197,7 @@ def main(): # lines 3563-3610
         print()
         print()
         graph_mode(False)
-        #textcolor(15) # graphical
+        textcolor(15)
         print('Bout complete! (', matches, ' matches)')
         print()
         k = 0
@@ -3261,9 +3212,9 @@ def main(): # lines 3563-3610
         print('Robot           Wins  Matches  Kills  Deaths    Shots')
         print('~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~')
         for i in range(0, num_robots + 1):
-            #textcolor(robot_color(i)) # graphical
+            textcolor(robot_color(i))
             print(addfront(cstr(i + 1), 2) + ' - ' + addrear(robot[i].fn, 8) + addfront(cstr(robot[i].wins), 7) + addfront(cstr(robot[i].trials), 8) + addfront(cstr(robot[i].kills), 8) + addfront(cstr(robot[i].deaths), 8) + addfront(cstr(robot[i].shots_fired), 9))
-        #textcolor(15) # graphical
+        textcolor(15)
         print()
         if k == 1:
             print('Robot #', n + 1, ' (', robot[n].fn, ') wins the bout! (score: ', w, '/', matches, ')')
