@@ -1,10 +1,49 @@
 #!/usr/bin/python
 
+# Copyright (c) 1999, Ed T. Toton III. All rights reserved.
+
+# Bug fixes and additional additions Copyright (c) 2014, William "Amos" Confer
+
+# Redistribution and use in source and binary forms, with or without
+# modification, are permitted provided that the following conditions
+# are met:
+
+#    Redistributions of source code must retain the above copyright notice,
+#    this list of conditions and the following disclaimer.
+
+#    Redistributions in binary form must reproduce the above copyright notice, 
+#    this list of conditions and the following disclaimer in the documentation
+#    and/or other materials provided with the distribution.
+
+#    All advertising materials mentioning features or use of this software
+#    must display the following acknowledgement:
+
+#         This product includes software developed by Ed T. Toton III &
+#         NecroBones Enterprises.
+
+#    No modified or derivative copies or software may be distributed in the
+#    guise of official or original releases/versions of this software. Such
+#    works must contain acknowledgement that it is modified from the original.
+
+#    Neither the name of the author nor the name of the business or
+#    contributers may be used to endorse or promote products derived
+#    from this software without specific prior written permission.
+
+# THIS SOFTWARE IS PROVIDED BY THE AUTHOR AND CONTRIBUTORS ``AS IS'' AND ANY 
+# EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED 
+# WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE
+# DISCLAIMED. IN NO EVENT SHALL THE AUTHOR OR CONTRIBUTORS BE LIABLE FOR ANY
+# DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES
+# (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES;
+# LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND
+# ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
+# (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF
+# THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+
 ### A very incomplete to-do list ###
 # Check variable scope, global variables must have a global declaration at the beginning of the function
 # Amruldin's code has something wrong that's messed up the indentation
 ### Lower priority stuff ###
-# Fix licensing
 # Figure out how to make it so this can automagically run on a platform that isnt GNU/Linux
 # Check all the for loops and make sure they iterate the correct number of times
 # Check array accessing works properly
@@ -1971,13 +2010,13 @@ def init_mine(n,detectrange,size):
     for r in robot:
         k = -1
         for i in range(0,max_mines):
-            if ((mine[i].x < 0) or (mine[i].x > 1000) or (mine[i].y < 0) or (mine[i].y > 1000) or (mine[i].yield <= 0)) and (k < 0):
+            if ((mine[i].x < 0) or (mine[i].x > 1000) or (mine[i].y < 0) or (mine[i].y > 1000) or (mine[i]._yield <= 0)) and (k < 0):
                 k = i
             if k >= 0:
                 mine[k].x = x
                 mine[k].y = y
                 mine[k].detect = detectrange
-                mine[k].yield = size
+                mine[k]._yield = size
                 mine[k].detonate = False
                 click
 
@@ -2094,6 +2133,7 @@ def damage(n,d,physical):
 
 # def scan(n):
 def scan(n): # lines 1915-1978
+    global maxint
     nn = -1
     _range = maxint
     if not (0 <= n <= num_robots):
@@ -2187,7 +2227,8 @@ def com_receive(n): # lines 1998-2016
         robot_error(n, 12, '')
     return k
 
-def in_port(n,p,time_used)
+def in_port(n,p,time_used):
+    global minint
     v = 0
     if p == 1:
         v = robot[n].spd
@@ -2241,7 +2282,7 @@ def in_port(n,p,time_used)
         if l >= 0:
             v = (round(find_angle(x, y, robot[l].x, robot[l].y) / math.pi*128 + 1024 + random(65) - 32) & 255)
                 else:
-                    v = minint # ?!?
+                    v = minint
         if robot[n].nn in range(0,num_robots):
             ram[5] = robot[robot[n].nn].transponder
     if p == 17:
@@ -2263,7 +2304,7 @@ def in_port(n,p,time_used)
         if config.mines >= 0:
             k = 0
             for i in range(0, max_mines):
-                if (mine[i].x >= 0) and (mine[i].x <= 1000) and (mine[i].y >= 0) and (mine[i].y <= 1000) and (mine[i].yield > 0):
+                if (mine[i].x >= 0) and (mine[i].x <= 1000) and (mine[i].y >= 0) and (mine[i].y <= 1000) and (mine[i]._yield > 0):
                     k += 1
                     v = k
                 else:
@@ -2846,6 +2887,7 @@ def execute_instruction(n): # lines 2638-2980
 # def do_robot(n):
 def do_robot(n): # lines 2982-3119
     global executed
+    global maxint
     if (n < 0) or (n > num_robots):
         return
     if robot[n].armor <= 0:
@@ -3241,6 +3283,7 @@ def score_robots(): # lines 3363-3376
 # def init_bout():
 def init_bout(): # lines 3378-3405
     global game_cycle
+    global maxint
     game_cycle = 0
     for i in range(0, max_missiles + 1):
         missile[i].a = 0
