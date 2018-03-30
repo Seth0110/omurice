@@ -1606,7 +1606,7 @@ def parse_param(s):
         if s1[0] == 'S':
             show_source = False
             found = True
-        if s1[0] == 'G':n
+        if s1[0] == 'G':
             no_gfx = True
             found = True
         if s1[0] == 'R':
@@ -1664,17 +1664,17 @@ def parse_param(s):
 
 # def draw_robot(n): GRAPHICAL
 
-xdef get_from_ram(n,i,j):
+def get_from_ram(n,i,j):
     for r in robot:
         if (i < 0) or (i > (max_ram + 1) + (((max_code + 1) << 3) - 1)):
             k = 0
             robot[n].robot_error(n,4,cstr(i))
         else:
             if i <= max_ram:
-                k = ram[i]
+                k = robot[n].ram[i]
             else:
                 l = i - max_ram - 1
-                k = code[l >> 2].op[l & 3]
+                k = robot[n].code[l >> 2].op[l & 3]
     return k
 
 def get_val(n,c,o):
