@@ -213,7 +213,7 @@ class robot_rec:
     code = prog_type
     ram = [0 for i in range(0, max_ram + 1)]
     mine = [mine_rec() for i in range(0, max_mines + 1)]
-    errorlog = open(errorlog, 'a').close() 
+    errorlog = open('errorlog', 'a').close() 
 
 class missile_rec:
     x = 0
