@@ -96,6 +96,19 @@ max_config_points = 12
 max_mines = 63
 mine_blast = 35
 
+# {simulator & graphics}
+screen_scale = 0.46
+screen_x = 5
+screen_y = 5
+robot_scale = 6
+default_delay = 20
+default_slice = 5
+#mine_circle = trunc(mine_blast * screen_scale) + 1
+#blast_circle = trunc(blast_radius * screen_scale) + 1
+#mis_radius = trunc(hit_range / 2) + 1
+max_robot_lines = 8
+#Gray50 : FillPatternType = ($AA, $55, $AA, $55, $AA, $55, $AA, $55);
+
 # general settings
 _quit = False
 report = False
