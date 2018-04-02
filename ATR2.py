@@ -96,18 +96,23 @@ max_config_points = 12
 max_mines = 63
 mine_blast = 35
 
-# {simulator & graphics}
+
+# simulator & graphics
+
 screen_scale = 0.46
 screen_x = 5
 screen_y = 5
 robot_scale = 6
 default_delay = 20
 default_slice = 5
-#mine_circle = trunc(mine_blast * screen_scale) + 1
-#blast_circle = trunc(blast_radius * screen_scale) + 1
-#mis_radius = trunc(hit_range / 2) + 1
+
+mine_circle = int(mine_blast * screen_scale) + 1
+blast_circle = int(blast_radius * screen_scale) + 1
+mis_radius = int(hit_range / 2.0) + 1
 max_robot_lines = 8
-#Gray50 : FillPatternType = ($AA, $55, $AA, $55, $AA, $55, $AA, $55);
+# gray50 thing goes here
+
+# typing things go here, maybe not needed in python?
 
 # general settings
 _quit = False
@@ -213,7 +218,8 @@ class robot_rec:
     code = prog_type
     ram = [0 for i in range(0, max_ram + 1)]
     mine = [mine_rec() for i in range(0, max_mines + 1)]
-    errorlog = open('errorlog', 'a').close() 
+
+    errorlog = open('errorlog', 'a').close() # Seth: I think this isn't needed, just use a filename 'errorlog'
 
 class missile_rec:
     x = 0
@@ -1382,23 +1388,22 @@ def robot_config(n):
             config.heatsinks = 0
         
 def reset_software(n):
-    for r in robot:
-        for i in range(0,max_ram):
-            ram[i] = 0
-            ram[71] = 768
-            robot[n].thd = robot[n].hd
-            robot[n].tspd = 0
-            robot[n].scanarc = 8
-            robot[n].shift = 0
-            robot[n].err = 0
-            robot[n].overburn = False
-            robot[n].keepshift = False
-            robot[n].ip = 0
-            robot[n].accuracy = 0
-            robot[n].meters = 0
-            robot[n].delay_left = 0
-            robot[n].time_left = 0
-            robot[n].shields_up = False
+    for i in range(0,max_ram):
+        ram[i] = 0
+        ram[71] = 768
+        robot[n].thd = robot[n].hd
+        robot[n].tspd = 0
+        robot[n].scanarc = 8
+        robot[n].shift = 0
+        robot[n].err = 0
+        robot[n].overburn = False
+        robot[n].keepshift = False
+        robot[n].ip = 0
+        robot[n].accuracy = 0
+        robot[n].meters = 0
+        robot[n].delay_left = 0
+        robot[n].time_left = 0
+        robot[n].shields_up = False
             
 def reset_hardware(n):
     for i in range(1, max_robot_lines + 1):
@@ -1678,97 +1683,90 @@ def parse_param(s):
 # def draw_robot(n): GRAPHICAL
 
 def get_from_ram(n,i,j):
-    for r in robot:
-        if (i < 0) or (i > (max_ram + 1) + (((max_code + 1) << 3) - 1)):
-            k = 0
-            robot[n].robot_error(n,4,cstr(i))
+    if (i < 0) or (i > (max_ram + 1) + (((max_code + 1) << 3) - 1)):
+        k = 0
+        robot[n].robot_error(n,4,cstr(i))
+    else:
+        if i <= max_ram:
+            k = ram[i]
         else:
-            if i <= max_ram:
-                k = robot[n].ram[i]
-            else:
-                l = i - max_ram - 1
-                k = robot[n].code[l >> 2].op[l & 3]
+            l = i - max_ram - 1
+            k = code[l >> 2].op[l & 3]
     return k
 
 def get_val(n,c,o):
     k = 0
-    for r in robot:
-        j = (robot[n].code[c].op[max_op] >> (4*o)) & 15
-        i = robot[n].code[c].op[o]
-        if (j & 7) == 1:
-            k = get_from_ram(n,i,j)
-        else:
-            k = i
-        if (j & 8) > 0:
-            k = get_from_ram(n,k,j)
-    get_val = k
+    j = (robot[n].code[c].op[max_op] >> (4*o)) & 15
+    i = robot[n].code[c].op[o]
+    if (j & 7) == 1:
+        k = get_from_ram(n,i,j)
+    else:
+        k = i
+    if (j & 8) > 0:
+        k = get_from_ram(n,k,j)
+    return = k
 
 def put_val(n,c,o,v):
     k = 0
     i = 0
     j = 0
-    for r in robot:
-        j = (robot[n].code[c].op[max_op] >> (4 * o)) & 15
-        i = robot[n].code[c].op[o]
-        if (j and 7) == 1:
-            if (i<0) or (i>max_ram):
-                robot_error(n,4,cstr(i))
-            else:
-                if (j and 8) > 0:
-                    i = ram[i]
-                    if (i < 0) or (i > max_ram):
-                        robot_error(n,4,cstr(i))
-                    else:
-                        ram[i] = v
-                else:
-                    ram[i] = v
+    j = (robot[n].code[c].op[max_op] >> (4 * o)) & 15
+    i = robot[n].code[c].op[o]
+    if (j and 7) == 1:
+        if (i<0) or (i>max_ram):
+            robot_error(n,4,cstr(i))
         else:
-            robot_error(n,3,'')
+            if (j and 8) > 0:
+                i = ram[i]
+                if (i < 0) or (i > max_ram):
+                    robot_error(n,4,cstr(i))
+                else:
+                    robot[n].ram[i] = v
+            else:
+                robot[n].ram[i] = v
+    else:
+        robot_error(n,3,'')
 
 def push(n,v):
-    for r in robot:
-        if (ram[71] >= stack_base) and (ram[71] < (stack_base + stack_size)):
-            ram[ram[71]] = v
-            ram[71] = ram[71] + 1
-        else:
-            robot_error(n,1,cstr(ram[71]))
+    if (robot[n].ram[71] >= stack_base) and (robot[n].ram[71] < (stack_base + stack_size)):
+        robot[n].ram[robot[n].ram[71]] = v
+        robot[n].ram[71] = robot[n].ram[71] + 1
+    else:
+        robot_error(n,1,cstr(robot[n].ram[71]))
             
 def pop(n):
-    for r in robot:
-        if (ram[71] > stack_base) and (ram[71] <= (stack_base + stack_size)):
-            ram[71] = ram[71] - 1
-            k = ram[ram[71]]
-        else:
-            robot_error(n,5,cstr(ram[71]))
+    if (robot[n].ram[71] > stack_base) and (robot[n].ram[71] <= (stack_base + stack_size)):
+        robot[n].ram[71] = robot[n].ram[71] - 1
+        k = robot[n].ram[robot[n].ram[71]]
+    else:
+        robot_error(n,5,cstr(robot[n].ram[71]))
     return k
 
 def find_label(n,l,m):
     k = -1
-    for r in robot:
-        if m == 3:
-            robot_error(n,9,'')
-        elif m == 4:
-            k = l
-        else:
-            for i in range(plen,0,-1):
-                j = code[i].op[max_op] & 15
-                if (j == 2) and (code[i].op[0] == l):
-                    k = i
+    if m == 3:
+        robot_error(n,9,'')
+    elif m == 4:
+        k = l
+    else:
+        for i in range(plen,0,-1):
+            j = code[i].op[max_op] & 15
+            if (j == 2) and (code[i].op[0] == l):
+                k = i
     return k
 
 def init_mine(n,detectrange,size):
-    for r in robot:
-        k = -1
-        for i in range(0,max_mines):
-            if ((mine[i].x < 0) or (mine[i].x > 1000) or (mine[i].y < 0) or (mine[i].y > 1000) or (mine[i]._yield <= 0)) and (k < 0):
-                k = i
-            if k >= 0:
-                mine[k].x = x
-                mine[k].y = y
-                mine[k].detect = detectrange
-                mine[k]._yield = size
-                mine[k].detonate = False
-                click
+    k = -1
+    for i in range(0,max_mines):
+        if ((robot[n].mine[i].x < 0) or (robot[n].mine[i].x > 1000) or (robot[n].mine[i].y < 0) or (robot[n].mine[i].y > 1000) or (robot[n].mine[i]._yield <= 0)) and (k < 0):
+            k = i
+        if k >= 0:
+            robot[n].mine[k].x = x
+            robot[n].mine[k].y = y
+            robot[n].mine[k].detect = detectrange
+            robot[n].mine[k]._yield = size
+            robot[n].mine[k].detonate = False
+            click()
 
 def count_missiles():
     k = 0
@@ -1837,7 +1835,7 @@ def damage(n,d,physical):
                 robot[n].d = 1
                 h = round(dd * 2 / 3.0)
             if robot[n].config.shield == 4:
-                h = trunc(dd / 2.0)
+                h = int(dd / 2.0)
                 robot[n].d = dd - h
             if robot[n].config.shield == 5:
                 robot[n].d = round(dd * 1 / 3.0)
