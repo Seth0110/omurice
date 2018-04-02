@@ -96,6 +96,7 @@ max_config_points = 12
 max_mines = 63
 mine_blast = 35
 
+
 # simulator & graphics
 
 screen_scale = 0.46
@@ -104,6 +105,7 @@ screen_y = 5
 robot_scale = 6
 default_delay = 20
 default_slice = 5
+
 mine_circle = int(mine_blast * screen_scale) + 1
 blast_circle = int(blast_radius * screen_scale) + 1
 mis_radius = int(hit_range / 2.0) + 1
@@ -216,6 +218,7 @@ class robot_rec:
     code = prog_type
     ram = [0 for i in range(0, max_ram + 1)]
     mine = [mine_rec() for i in range(0, max_mines + 1)]
+
     errorlog = open('errorlog', 'a').close() # Seth: I think this isn't needed, just use a filename 'errorlog'
 
 class missile_rec:
@@ -3234,3 +3237,4 @@ def main():
         show_statistics 
     if report:
         write_report
+

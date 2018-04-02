@@ -3,6 +3,16 @@
 import os
 import math
 
+# globals:
+delay_per_sec = 0
+registered = False
+graphix = False
+sound_on = False
+reg_name = ''
+reg_num = 0
+sint = [0 for i in range(0, 256)]
+cost = [0 for i in range(0, 256)]
+
 # def textxy(x,y,s)       GRAPHICAL
 # def coltextxy(x,y,s,c)  GRAPHICAL
 
