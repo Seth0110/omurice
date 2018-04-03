@@ -3050,7 +3050,7 @@ def score_robots():
 def init_bout():
     global game_cycle
     game_cycle = 0
-    for i in range(0, max_missiles + 1):
+    for i in range(max_missiles):
         missile[i].a = 0
         missile[i].source = -1
         missile[i].x = 0
@@ -3058,7 +3058,7 @@ def init_bout():
         missile[i].lx = 0
         missile[i].ly = 0
         missile[i].mult = 1
-    for i in range(0, num_robots):
+    for i in range(num_robots):
         robot[i].mem_watch = 128
         reset_hardware(i)
         reset_software(i)
@@ -3071,7 +3071,6 @@ def init_bout():
         # textcolor(7)
 
 def bout():
-    pdb.set_trace()
     global game_cycle
     global game_delay
     global played
@@ -3089,19 +3088,18 @@ def bout():
         step_loop = True
     step_count = -1
     if graphix and (step_mode > 0):
-        for i in range(0,num_robots):
+        for i in range(num_robots):
             draw_robot(i)
-    # pdb.set_trace()
     while not _quit and not gameover() and not bout_over:
         game_cycle += 1
-        for i in range(0,num_robots):
+        for i in range(num_robots):
             if robot[i].armor > 0:
                 do_robot(i)
-        for i in range(0,max_missiles):
+        for i in range(max_missiles):
             if missile[i].a > 0:
                 do_missile(i)
-        for i in range(0,num_robots):
-            for k in range(0,max_mines):
+        for i in range(num_robots):
+            for k in range(max_mines):
                 if robot[i].mine[k]._yield > 0:
                     do_mine(i,k)
                 
