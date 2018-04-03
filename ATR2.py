@@ -1,7 +1,7 @@
 #!/usr/bin/python
 
 ### A very incomplete to-do list, please add to this things you see wrong!##########################
-# Robots are not being loaded from any file, so bouts are instantly over
+# Robots aren't being compiled properly
 # Need to figure out what keypressed is supposed to do, can use pygame for this, until then keypressed returns false
 ####################################################################################################
 
@@ -73,10 +73,10 @@ maxint = 32787
 minint = -32768
 
 # debugging/compiler
-show_code = _F
-compile_by_line = _F
+show_code = False
+compile_by_line = False
 max_var_len = 16
-debugging_compiler = _F
+debugging_compiler = False
 
 # robots
 max_robots = 31  # starts at 0, so total is max_robots + 1
@@ -242,7 +242,7 @@ robot = [robot_rec() for i in range(-2, max_robots + 3)]
 num_robots = 2
 
 # compiler variables
-f = open('f', 'a').close()
+# f = open('f', 'a').close()
 numvars = 0
 numlabels = 0
 maxcode = 0
@@ -254,6 +254,7 @@ varloc = []
 varloc = [0 for i in range(1, max_vars + 1)]
 labelname = []
 labelname = ['' for i in range(1, max_vars + 1)]
+labelnum = [x for x in range(max_labels)]
 varnum = []
 varnum = [0 for i in range(1, max_labels + 1)]
 show_source = False 
@@ -289,7 +290,7 @@ game_cycle = 0
 
 # general settings
 _quit = False
-report = False
+report = True
 show_cnotice = False
 kill_count = 0
 report_type = 0
@@ -674,30 +675,36 @@ def print_code(n,p):
     print(hex(p)+': ')
     for i in range(0,max_op):
         print(zero_pad(robot[n].code[p].op[i],5), ' ')
-    write('=  ')
+    sys.stdout.write('=  ')
     for i in range(0,max_op):
         print(hex(robot[n].code[p].op[i]),'h ')
     print('\n')
     print('\n')
 
 def parse1(n,p,s):
-    robot[n].n
-    for i in range(0,-1):
+    global numlabels
+    ss = ''
+    for i in range(max_op - 1):
         k = 0
         found = False
         opcode=0
         microcode=0
-        i = btrim(ucase(i))
+        s[i] = btrim(ucase(s[i]))
         indirect = False
-        
+        # Microcode:
+        #  0 = instruction, number, constant
+        #  1 = variable, memory access
+        #  2 = :label
+        #  3 = !label (unresolved)
+        #  4 = !label (resolved)
+        # 8h mask = inderect addressing (enclosed in [])
         if s[i] == '':
             opcode = 0
-            microcode =0
+            microcode = 0
             found = True
-        if str(s[i], 1) == '[' and (str(s[i], 1) == ']'):
-            s[i] = copy(s[i],2,len(s[i])-2) # check copy
-            indirect = True
-        
+        if lstr(s[i], 1) == '[' and (rstr(s[i], 1) == ']'):
+            s[i] = copy(s[i],2,len(s[i])-2)
+            indirect = True        
         if (not found) and (s[i][1] == '!'):
             ss = s[i]
             ss = btrim(rstr(ss,len(ss)-1))
@@ -707,7 +714,7 @@ def parse1(n,p,s):
                         found = True
                         if labelnum[i] > 0:
                             opcode = labelnum[i]
-                            microcode = 4    #resovled !label
+                            microcode = 4    # resovled !label
                         else:
                             opcode = i  
                             microcode = 3    # unresovled !label
@@ -720,15 +727,13 @@ def parse1(n,p,s):
                 labelnum[numlabels] = -1
                 opcode = numlabels
                 microcode = 3   # unresolved !label
-                found = True
-        
+                found = True        
         if numvars > 0 and not found:            
             for j in range(1,numvars):
                 if s[i] == varname[j]:
                     opcode = varloc[j]
                     microcode = 1
                     found = True
-        
         # instructions
         if s[i] == 'NOP':
             opcode = 000
@@ -1262,6 +1267,7 @@ def _compile(n,filename):
     lock_pos = 0
     locktype = 0
     lock_dat = 0
+    pp = [''] * max_op
     if not os.path.isfile(filename):
         prog_error(8,filename)
     # textcolor(robot_color(n))
@@ -1274,11 +1280,11 @@ def _compile(n,filename):
         for i in range(max_op):
             robot[n].code[k].op[i] = 0
     robot[n].plen = 0
-    f = open(filename,'r') # DOES THIS NEED TO HAVE WRITE PERMISSIONS?
+    f = open(filename,'r')
     s = ''
     linecount = 0
-    for line in f: # This whole loop is probably bugged...
-        if s == '#END' '''or plen > maxcode''':
+    for line in f:
+        if s == '#END': # and plen <= maxcode
             break
         linecount += 1
         if locktype < 3:
@@ -1288,7 +1294,7 @@ def _compile(n,filename):
                 lock_pos += 1
                 if lock_pos > len(lock_code):
                     lock_pos = 0
-                if locktype == 3: # THIS MUST MATCH ATRLOCK FILE ALGORITHM
+                if locktype == 3:
                     s[i] = chr((ord(s[i]) - 1) ^ (ord(lock_code[lock_pos]) ^ lock_dat))
                 elif locktype == 2:
                     s[i] = chr(ord(s[i]) ^ (ord(lock_code[lock_pos]) ^ 1))
@@ -1297,26 +1303,27 @@ def _compile(n,filename):
                 lock_dat = ord(s[i]) & 15
             s = btrim(s)
             orig_s = s
-            t = '' # strings in Python are immutable
-            for i in s-list:
+            t = ''
+            for i in s:
                 if int(i) in range(0,33) or int(i) in range(128,256):
                    t += ' '
                 else:
                     t = i
+            s = t
             if show_source and ((lock_code == '') or debugging_compiler):
-                print(zero_pad(linecount, 3) + ':' + zero_pad(plen, 3) + ' ' + s)
+                print(zero_pad(linecount, 3) + ':' + zero_pad(robot[n].plen, 3) + ' ' + s)
             if debugging_compiler:
                 if pygame.key.get_pressed() == chr(27):
                     sys.exit()
             k = 0
-            for i in range(len(t),0,-1):
+            for i in range(len(t)-1,0,-1):
                 if i == ';':
                     k = i
             if k > 0:
                 s = lstr(t, k - 1)
             s = btrim(t.upper())
-            for i in range(0,max_op):
-                pp[i] = ''
+            for i in range(max_op):
+                pp.append('') # pp[i] += ''
             if (len(s) > 0) and (s[0] != ';'):
                 if s[0] == '#': # Compiler Directives
                     s1 = btrim(rstr(s,length(s)-1)).upper()
@@ -1382,10 +1389,134 @@ def _compile(n,filename):
                                     robot[n].config.mines = value(rstr(s3, len(s3) - 6))
                                 else:
                                     prog_error(20, s3)
-                                
-                                
-#################### THE COMPILE FUNCTION IS NOT COMPLETED YET #########################                        
+                                if robot[n].config.scanner < 0:
+                                    robot[n].config.scanner = 0
+                                if robot[n].config.scanner > 5:
+                                    robot[n].config.scanner = 5
+                                if robot[n].config.weapon < 0:
+                                    robot[n].config.weapon = 0
+                                if robot[n].config.weapon > 5:
+                                    robot[n].config.weapon = 5
+                                if robot[n].config.armor < 0:
+                                    robot[n].config.armor = 0
+                                if robot[n].config.armor > 5:
+                                    robot[n].config.armor = 5
+                                if robot[n].config.engine < 0:
+                                    robot[n].config.engine = 0
+                                if robot[n].config.engine > 5:
+                                    robot[n].config.engine = 5
+                                if robot[n].config.heatsinks < 0:
+                                    robot[n].config.heatsinks = 0
+                                if robot[n].config.heatsinks > 5:
+                                    robot[n].config.heatsinks = 0
+                                if robot[n].config.mines < 0:
+                                    robot[n].config.mines = 0
+                                if robot[n].config.mines > 5:
+                                    robot[n].config.mines = 5
+                        print('Warning: unknown directive "' + s2 + '"')
+                if s[0] == '*': # Inline Pre-Compiled Machine Code
+                    check_plen(robot[n].plen)
+                    for i in range(max_op):
+                        pp[i] = ''
+                    for i in range(1,len(s)):
+                        if s[i] == '*':
+                            prog_error(23, s)
+                    k = 0
+                    i = 1
+                    s1 = ''
+                    if len(s) <= 2:
+                        prog_error(22, s)
+                    while (i < len(s)) and (k <= max_op):
+                        i += 1
+                        if ord(s[i]) in [x in range(33,42), x in range(43,128)]:
+                            pp[k] = pp[k] + s[i]
+                        elif ord(s[i]) in [x in range(0,33), x in range(128, 256)] and ord(s[i-1]) in [x in range(33, 42), x in range(43, 128)]:
+                            k += 1
+                    for i in range(max_op):
+                        code[robot[n].plen].op[i] = str2int(pp[i])
+                    robot[n].plen += 1
+                if s[0] == ':': # :labels
+                    check_plen(robot[n].plen)
+                    s1 = rstr(s, len(s) - 1)
+                    for i in range(len(s1)):
+                        if not s1[i] in range(9):
+                            prog_error(1, s)
+                    code[robot[n].plen].op[0] = str2int(s1)
+                    code[robot[n].plen].op[max_op] = 2
+                    if show_code:
+                        print_code(n, robot[n].plen)
+                    robot[n].plen += 1
+                if s[0] == '!': # !labels
+                    check_plen(robot[n].plen)
+                    s1 = btrim(rstr(s, len(s) - 1))
+                    k = 0
+                    for i in range(len(s1),0,-1):
+                        if s1[i] in [';', chr(8), chr(9), chr(10), ' ', ',']:
+                            k = i
+                    if k > 0:
+                        s1 = lstr(s1, k - 1)
+                    k = 0
+                    for i in range(numlabels):
+                        if labelname[i] == s1:
+                            if labelnum[i] >= 0:
+                                prog_error(13, '"!' + s1 + '" (' + cstr(labelnum[i]) + ')')
+                                k = i
+                    if k == 0:
+                        numlabels += 1
+                        if numlabels > max_labels:
+                            prog_error(15, '')
+                        k = numlabels
+                    labelname[k] = s1
+                    labelum[k] = robot[n].plen
+                else:
+                    check_plen(robot[n].plen)
+                    k = 0
+                    for i in range(len(s), 0, -1):
+                        if s[i] == ';':
+                            k = i
+                    if k > 0:
+                        s = lstr(s, k - 1)
+                    k = 0
+                    for j in range(max_op):
+                        pp[j] = ''
+                    for j in range(len(s)):
+                        c = s[j]
+                        if not c in [' ', chr(8), chr(9), chr(10), ','] and k <= max_op:
+                            pp[k] = pp[k] + c
+                        elif not lc in [' ', chr(8), chr(9), chr(10), ',']:
+                            k = k + 1
+                        lc = c
+                    parse1(n, robot[n].plen, pp)
+                    robot[n].plen += 1
+    f.close()
+    if robot[n].plen <= maxcode:
+        for i in range(max_op):
+            pp[i] = ''
+        pp[0] = 'NOP'
+        parse1(n, robot[n].plen, pp)
+    else:
+        robot[n].plen -= 1
 
+    # second pass, resolving !labels
+    if numlabels > 0:
+        for i in range(robot[n].plen):
+            for j in range(max_op - 1):
+                if code[i].op[max_op] >> (j * 4) == 3: # unresolved !label
+                    k = code[i].op[j]
+                    if k > 0 and k <= numlabels:
+                        l = labelnum[k]
+                        if l < 0:
+                            prog_error(19, '"!' + labelname[k] + '" (' + cstr(l) + ')')
+                        if l < 0 or l > maxcode:
+                            prog_error(18, '"!' + labelname[k] + '" (' + cstr(l) + ')')
+                        else:
+                            code[i].op[j] = l
+                            mask = not (0xF << (j * 4))
+                            code[i].op[max_op] = (code[i].op[max_op] and mask) or (4 << (j * 4))
+                    else:
+                        prog_error(17, cstr(k))
+    # textcolor(7)
+                                
 def robot_config(n):
     if robot[n].config.scanner == 5:
         robot[n].scanrange = 1500
@@ -1816,7 +1947,6 @@ def init():
     make_tables() # in ATR2FUNC
     random.seed(time.time()) # "randomize" in original code
     num_robots = -1
-    game_limit = 100000
     game_cycle = 0 
     game_delay = default_delay
     time_slice = default_slice
@@ -3180,9 +3310,10 @@ def show_statistics():
         # outtextxy(sx+16,sy+64,num_robots*12,victor_string(k,n))
         
         if windoze:
-            outtextxy(sx+16,sy+76+num_robots*12, 'Press any key to continue...')
-            flushkey
-            readkey
+            pass
+            # outtextxy(sx+16,sy+76+num_robots*12, 'Press any key to continue...')
+            # flushkey
+            # readkey
         
         # textcolor(15)
         print(str(13) + ' ' + str(13))
