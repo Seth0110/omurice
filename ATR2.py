@@ -1712,7 +1712,134 @@ def parse_param(s):
     if not found:
         prog_error(8, s)
 
-# # def init():
+def init(): 
+    global step_mode
+    global logging_errors
+    global stats_mode
+    global insane_missiles
+    global insanity
+    global windoze
+    global no_gfx
+    global timing
+    global matches
+    global played
+    global old_shields
+    global _quit
+    global compile_only
+    global show_arcs
+    global debug_info
+    global show_cnotice
+    global show_source
+    global report
+    global kill_count
+    global maxcode
+    global max_code
+    global num_robots
+    global game_limit
+    global game_cycle
+    global game_delay
+    global default_delay
+    global time_slice
+    global default_slice
+    global temp_mode
+    if debugging_compiler or compile_by_line or show_code:
+        print("!!! Warning !!! Compiler Debugging enabled !!!")
+        print() 
+    step_mode = 0 # {stepping disabled}
+    logging_errors = False
+    stats_mode = 0
+    insane_missiles = False
+    insanity = 0
+    delay_per_sec = 0 # initialized in ATR2FUNC
+    windoze = True
+    graphix = False # initialized in ATR2FUNC
+    no_gfx = True
+    sound_on = True # initialized in ATR2FUNC
+    timing = True
+    matches = 1
+    played = 0
+    old_shields = False
+    _quit = False
+    compile_only = False
+    show_arcs = False
+    debug_info = False
+    show_cnotice = True
+    show_source = True
+    report = False
+    kill_count = 0
+    maxcode = max_code 
+    make_tables() # in ATR2FUNC
+    random.seed(time.time()) # "randomize" in original code
+    num_robots = -1
+    game_limit = 100000
+    game_cycle = 0 
+    game_delay = default_delay
+    time_slice = default_slice
+    for i in range(0, max_missiles + 1):
+        missile[i].a = 0 
+        missile[i].source = -1
+        missile[i].x = 0
+        missile[i].y = 0
+        missile[i].lx = 0
+        missile[i].ly = 0
+        missile[i].mult = 1
+    registered = False # initialized in ATR2FUNC
+    reg_name = "Unregistered" # initialized in ATR2FUNC
+    reg_num = 0xFFFF # initialized in ATR2FUNC
+    check_registration() # in ATR2FUNC
+    print()
+    #textcolor(3) # graphical
+    print(progname, '', version, '')
+    print(cnotice1)
+    print(cnotice2)
+    #textcolor(7) # graphical 
+    if not registered:
+        #textcolor(4) # graphical
+        print("Unregistered version")
+    else:
+        print("Registered to: ", reg_name)
+    #textcolor(7) # graphical 
+    print()
+    # {create_robot(0,'SDUCK');}
+    delete_compile_report() 
+    if len(sys.argv - 1) > 0: # paramcount is # of args passed to command line which is len(sys.argv) 
+        parse_param(btrim(ucase(paramstr(i)))) # uses ATR2FUNC
+    else:
+        prog_error(5, '') # ported
+    temp_mode = step_mode # {store initial step_mode}
+    if logging_errors:
+        for i in range (0, num_robots + 1):
+            robot[i].errorlog = open(robot[i].fn.split('.')[0] + '.ERR', 'w')
+            if os.path.isfile(robot[i].errorlog):
+                os.remove(robot[i].errorlog)
+            robot[i].errorlog = open(robot[i].fn.split('.')[0] + '.ERR', 'w')
+            robot[i].errorlog.close()
+    if compile_only:
+        write_compile_report() 
+    if num_robots < 1:
+        prog_error(4, '')
+    '''if not no_gfx: #commeting out since graphics-related
+        graph_mode(True) # func on bool line 552 '''
+    # {--fix ups--}
+    if matches > 100000: matches = 100000
+    if matches < 1: matches = 1
+    if game_delay > 1000: game_delay = 1000
+    if game_delay < 0: game_delay = 0 
+    if time_slice > 100: time_slice = 100;
+    if time_slice < 1: time_slice = 1
+    if game_limit < 0: game_limit = 0
+    if game_limit > 100000: game_limit = 100000
+    if maxcode < 1: maxcode = 1 # {0 based, so actually 2 lines}
+    if maxcode > max_code: maxcode = max_code
+    # {--Just to avoid floating pointers--}
+    for i in range(num_robots + 1, max_robots + 3):
+        robot[i] = robot[0]
+        robot[-1] = robot[0]
+        robot[-2] = robot[0]
+    if not graphix:
+        #print("Freemem: ", memavail) # don't have to do since we have much memavail
+        print()
+
 
 # def draw_robot(n): GRAPHICAL
 
