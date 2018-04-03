@@ -257,7 +257,7 @@ labelname = ['' for i in range(1, max_vars + 1)]
 varnum = []
 varnum = [0 for i in range(1, max_labels + 1)]
 show_source = False 
-compile_only False
+compile_only = False
 lock_code = ''
 
 # simulator/graphics variables
@@ -1255,6 +1255,9 @@ def check_plen(plen):
         prog_error(16,'\t\nMaximum program length exceeded, (Limit: ' + cstr(maxcode+1) + ' compiled lines)')
 
 def _compile(n,filename):
+    global numvars
+    global numlabels
+    global f
     lock_code = ''
     lock_pos = 0
     locktype = 0
@@ -1270,23 +1273,21 @@ def _compile(n,filename):
     for k in range(max_code):
         for i in range(max_op):
             robot[n].code[k].op[i] = 0
-    plen = 0
+    robot[n].plen = 0
     f = open(filename,'r') # DOES THIS NEED TO HAVE WRITE PERMISSIONS?
     s = ''
     linecount = 0
     for line in f: # This whole loop is probably bugged...
-        if s == '#END' or plen > maxcode:
+        if s == '#END' '''or plen > maxcode''':
             break
         linecount += 1
+        if locktype < 3:
+            lock_pos = 0
         if lock_code != '':
             for i in s:
                 lock_pos += 1
                 if lock_pos > len(lock_code):
                     lock_pos = 0
-                if lock_code != '':
-                    lock_pos += 1
-                    if lock_pos > len(lock_code):
-                        lock_pos = 0
                     if locktype == 3: # THIS MUST MATCH ATRLOCK FILE ALGORITHM
                         s[i] = chr((ord(s[i]) - 1) ^ (ord(lock_code[lock_pos]) ^ lock_dat))
                     if locktype == 2:
