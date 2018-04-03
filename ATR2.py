@@ -1288,12 +1288,12 @@ def _compile(n,filename):
                 lock_pos += 1
                 if lock_pos > len(lock_code):
                     lock_pos = 0
-                    if locktype == 3: # THIS MUST MATCH ATRLOCK FILE ALGORITHM
-                        s[i] = chr((ord(s[i]) - 1) ^ (ord(lock_code[lock_pos]) ^ lock_dat))
-                    if locktype == 2:
-                        s[i] = chr(ord(s[i]) ^ (ord(lock_code[lock_pos]) ^ 1))
-                    else:
-                        s[i] = chr(ord(s[i]) ^ ord(lock_code[lock_pos]))
+                if locktype == 3: # THIS MUST MATCH ATRLOCK FILE ALGORITHM
+                    s[i] = chr((ord(s[i]) - 1) ^ (ord(lock_code[lock_pos]) ^ lock_dat))
+                elif locktype == 2:
+                    s[i] = chr(ord(s[i]) ^ (ord(lock_code[lock_pos]) ^ 1))
+                else:
+                    s[i] = chr(ord(s[i]) ^ ord(lock_code[lock_pos]))
                 lock_dat = ord(s[i]) & 15
             s = btrim(s)
             orig_s = s
