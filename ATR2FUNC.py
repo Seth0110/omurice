@@ -203,10 +203,11 @@ def sar(n,k):
         return len(s) * '0'
     return k * '0' + s[:-k]
 
-# graphical functions
-# def viewport(x1,y1,x2,y2)
-# def main_viewport():
-#     viewport(5,5,474,474)
+# GRAPHICAL FUNCTIONS
+def viewport(x1,y1,x2,y2):
+    pass
+def main_viewport():
+    viewport(5,5,474,474)
 
 # calculates sine and cosine tables
 def make_tables():

@@ -1,8 +1,8 @@
 #!/usr/bin/python
 
 ### A very incomplete to-do list, please add to this things you see wrong!##########################
-# The syntax should be correct now.  We need to get all function declarations to run without
-#     errors, then we can add a main() call at the end of the file, and start to debug runtime error
+# Robots are not being loaded from any file, so bouts are instantly over
+# Need to figure out what keypressed is supposed to do, can use pygame for this, until then keypressed returns false
 ####################################################################################################
 
 # Copyright (c) 1999, Ed T. Toton III. All rights reserved.
@@ -45,10 +45,15 @@
 # (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF
 # THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
+def keypressed():
+    return False
+
 from ATR2FUNC import *
 import random
 import time
 import os
+import pdb
+import pygame
 
 progname = 'AT-Robots'
 version = '2.11'
@@ -111,16 +116,6 @@ blast_circle = int(blast_radius * screen_scale) + 1
 mis_radius = int(hit_range / 2.0) + 1
 max_robot_lines = 8
 # gray50 thing goes here
-
-# typing things go here, maybe not needed in python?
-
-# general settings
-_quit = False
-report = False
-show_cnotice = False
-kill_count = 0
-report_type = 0 
-
 
 class op_rec:
     op = [0 for i in range(0, max_op + 1)]
@@ -241,6 +236,45 @@ missile = [missile_rec() for i in range(0, max_missiles + 1)]
 robot = []
 robot = [robot_rec() for i in range(-2, max_robots + 3)]
 
+# NOTE: in the original code these were just declarations, I've picked values that make sense for them to have
+# robot variables
+num_robots = 2
+
+# compiler variables
+
+# simulator/graphics variables
+bout_over = False # made global from procedure bout
+step_mode = 0     # 0=off, for (0<step_mode<=9) = #of game cycles per step
+temp_mode = 0     # stores previous step_mode for return to step
+step_count = 1    # step counter used as break flag
+step_loop = False # break flag for stepping
+# show_debugger = False # flag for viewing debugger panel vs. robot stats
+matches = 1
+played = 0
+old_shields = False
+insane_missiles = False
+debug_info = False
+windoze = False
+no_gfx = False
+logging_errors = False
+timing = False
+show_arcs = False
+game_delay = 0
+time_slice = 1
+insanity = 0
+update_timer = 1
+max_gx = 1000
+max_gy = 1000
+stats_mode = 0
+game_limit = 100
+game_cycle = 0
+
+# general settings
+_quit = False
+report = False
+show_cnotice = False
+kill_count = 0
+report_type = 0
 
 def operand(n,m):
     s = chr(n)
@@ -414,9 +448,9 @@ def log_error(n,i,ov):
                   operand(code[ip].op[1] + (code[ip].op[3] >> 4) & 15) + ' +  ' + 
                   operand(code[ip].op[2] + (code[ip].op[3] >> 8) & 15))
             if ov != '':
-                print(errorlog + '    (Values: ' + ov + ')') # was writeln
+                print(errorlog + '    (Values: ' + ov + ')')
             else:
-                print(errorlog) # was writeln
+                print(errorlog)
                 
             print(errorlog + ' AX=' + addrear(chr(ram[65])+',',7))
             print(errorlog + ' BX=' + addrear(chr(ram[66])+',',7))
@@ -424,7 +458,7 @@ def log_error(n,i,ov):
             print(errorlog + ' DX=' + addrear(chr(ram[68])+',',7))
             print(errorlog + ' EX=' + addrear(chr(ram[69])+',',7))
             print(errorlog + ' FX=' + addrear(chr(ram[70])+',',7))
-            print(errorlog + ' Flags=' + ram[64] + '\n') # was writeln
+            print(errorlog + ' Flags=' + robot[n].ram[64] + '\n')
             print(errorlog + ' AX=' + addrear(hex(ram[65])+',',7))
             print(errorlog + ' BX=' + addrear(hex(ram[66])+',',7))
             print(errorlog + ' CX=' + addrear(hex(ram[67])+',',7))
@@ -532,7 +566,7 @@ def update_lives(n):
 
 def update_cycle_window():
     if not graphix:
-        print('\t' + 'Match ' + played +  '/' + matches + ', Cycle: ' + ATR2FUNC.zero_pad(game_cycle,9))
+        print('\t' + 'Match ' + str(played) +  '/' + str(matches) + ', Cycle: ' + zero_pad(game_cycle,9))
     # else:
         # viewport(480,440,635,475)
         # setfillstyle(1,0)
@@ -1209,10 +1243,10 @@ def _compile(n,filename):
     lock_dat = 0
     if not exist(filename):
         prog_error(8,filename)
-    textcolor(robot_color(n))
+    # textcolor(robot_color(n))
     print('Compiling robot #' + str(n + 1) + ': ' + filename)
     is_locked = False
-    textcolor(robot_color(n))
+    # textcolor(robot_color(n))
     numvars = 0
     numlabels = 0
     for k in range(0, max_code):
@@ -1253,7 +1287,7 @@ def _compile(n,filename):
             if show_source and ((lock_code == '') or debugging_compiler):
                 print(zero_pad(linecount, 3) + ':' + zero_pad(plen, 3) + ' ' + s)
             if debugging_compiler:
-                if readkey == chr(27):
+                if pygame.key.get_pressed() == chr(27):
                     sys.exit()
             k = 0
             for i in range(len(t),0,-1):
@@ -1308,89 +1342,89 @@ def _compile(n,filename):
 
 # needs review: how does this function actually access config.attribute?
 def robot_config(n):
-    if config.scanner == 5:
+    if robot[n].config.scanner == 5:
         robot[n].scanrange = 1500
-    elif config.scanner == 4:
+    elif robot[n].config.scanner == 4:
         robot[n].scanrange = 1000
-    elif config.scanner == 3:
+    elif robot[n].config.scanner == 3:
         robot[n].scanrange = 700
-    elif config.scanner == 2:
+    elif robot[n].config.scanner == 2:
         robot[n].scanrange = 500
-    elif config.scanner == 1:
+    elif robot[n].config.scanner == 1:
         robot[n].scanrange = 350
     else:
         robot[n].scanrange = 250
         
-    if config.weapon == 5:
+    if robot[n].config.weapon == 5:
         robot[n].shotstrength = 1.5
-    elif config.weapon == 4:
+    elif robot[n].config.weapon == 4:
         robot[n].shotstrength = 1.35
-    elif config.weapon == 3:
+    elif robot[n].config.weapon == 3:
         robot[n].shotstrength = 1.2
-    elif config.weapon == 2:
+    elif robot[n].config.weapon == 2:
         robot[n].shotstrength = 1
-    elif config.weapon == 1:
+    elif robot[n].config.weapon == 1:
         robot[n].shotstrength = 0.8
     else:
         shotstrength = .5
         
-    if config.armor == 5:
+    if robot[n].config.armor == 5:
         robot[n].damageadj = 0.66
         robot[n].speedadj = 0.66
-    elif config.armor == 4:
+    elif robot[n].config.armor == 4:
         robot[n].damageadj = 0.77
         robot[n].speedadj = 0.75
-    elif config.armor == 3:
+    elif robot[n].config.armor == 3:
         robot[n].damageadj = 0.83
         robot[n].speedadj = 0.85
-    elif config.armor == 2:
+    elif robot[n].config.armor == 2:
         robot[n].damageadj = 1
         robot[n].speedadj = 1
-    elif config.armor == 1:
+    elif robot[n].config.armor == 1:
         robot[n].damageadj = 1.5
         robot[n].speedadj = 1.2
     else:
         robot[n].damageadj = 2
         robot[n].speedadj = 1.33
         
-    if config.engine == 5:
-        robot[n].speedadj = speedadj * 1.5
-    elif config.engine == 4:
-        robot[n].speedadj = speedadj * 1.35
-    elif config.engine == 3:
-        robot[n].speedadj = speedadj * 1.2
-    elif config.engine == 2:
-        robot[n].speedadj = speedadj * 1
-    elif config.engine == 1:
-        robot[n].speedadj = speedadj * 0.8
+    if robot[n].config.engine == 5:
+        robot[n].speedadj = robot[n].speedadj * 1.5
+    elif robot[n].config.engine == 4:
+        robot[n].speedadj = robot[n].speedadj * 1.35
+    elif robot[n].config.engine == 3:
+        robot[n].speedadj = robot[n].speedadj * 1.2
+    elif robot[n].config.engine == 2:
+        robot[n].speedadj = robot[n].speedadj * 1
+    elif robot[n].config.engine == 1:
+        robot[n].speedadj = robot[n].speedadj * 0.8
     else:
-        robot[n].speedadj = speedadj * 0.5
+        robot[n].speedadj = robot[n].speedadj * 0.5
             
         # heatsinks are handled seperately
-        if config.mines == 5:
+        if robot[n].config.mines == 5:
             robot[n].mines = 24
-        elif config.mines == 4:
+        elif robot[n].config.mines == 4:
             robot[n].mines = 16
-        elif config.mines == 3:
+        elif robot[n].config.mines == 3:
             robot[n].mines = 10
-        elif config.mines == 2:
+        elif robot[n].config.mines == 2:
             robot[n].mines = 6
-        elif config.mines == 1:
+        elif robot[n].config.mines == 1:
             robot[n].mines = 4
         else:
             mines = 2
-            config.mines = 0
+            robot[n].config.mines = 0
             
         robot[n].shields_up = False
-        if (config.shield < 3) or (config.shield > 5):
-            config.shield = 0
-        if (config.heatsinks < 0) or (config.heatsinks > 5):
-            config.heatsinks = 0
+        if (robot[n].config.shield < 3) or (robot[n].config.shield > 5):
+            robot[n].config.shield = 0
+        if (robot[n].config.heatsinks < 0) or (robot[n].config.heatsinks > 5):
+            robot[n].config.heatsinks = 0
         
 def reset_software(n):
     for i in range(0,max_ram):
-        ram[i] = 0
-        ram[71] = 768
+        robot[n].ram[i] = 0
+        robot[n].ram[71] = 768
         robot[n].thd = robot[n].hd
         robot[n].tspd = 0
         robot[n].scanarc = 8
@@ -1406,7 +1440,7 @@ def reset_software(n):
         robot[n].shields_up = False
             
 def reset_hardware(n):
-    for i in range(1, max_robot_lines + 1):
+    for i in range(max_robot_lines):
         robot[n].ltx[i] = 0
         robot[n].tx[i] = 0
         robot[n].lty[i] = 0
@@ -1688,7 +1722,7 @@ def get_from_ram(n,i,j):
         robot[n].robot_error(n,4,cstr(i))
     else:
         if i <= max_ram:
-            k = ram[i]
+            k = robot[n].ram[i]
         else:
             l = i - max_ram - 1
             k = code[l >> 2].op[l & 3]
@@ -1704,7 +1738,7 @@ def get_val(n,c,o):
         k = i
     if (j & 8) > 0:
         k = get_from_ram(n,k,j)
-    return = k
+    return k
 
 def put_val(n,c,o,v):
     k = 0
@@ -1717,7 +1751,7 @@ def put_val(n,c,o,v):
             robot_error(n,4,cstr(i))
         else:
             if (j and 8) > 0:
-                i = ram[i]
+                i = robot[n].ram[i]
                 if (i < 0) or (i > max_ram):
                     robot_error(n,4,cstr(i))
                 else:
@@ -2007,7 +2041,7 @@ def in_port(n,p,time_used):
                 nn = i
             v = k
             if nn in range(0,num_robots):
-                ram[5] = robot[robot[n].nn].transponder
+                robot[n].ram[5] = robot[robot[n].nn].transponder
     if p == 10:
         v = random.randint(0,65535) + random.randint(0,2)
     if p == 16:
@@ -2029,7 +2063,7 @@ def in_port(n,p,time_used):
         else:
             v = minint
         if robot[n].nn in range(0,num_robots):
-            ram[5] = robot[robot[n].nn].transponder
+            robot[n].ram[5] = robot[robot[n].nn].transponder
     if p == 17:
         v = scanarc
     if p == 18:
@@ -2135,30 +2169,30 @@ def call_int(n,int_num,time_used):
         time_used = 10
     if int_num == 2:
         time_used = 5
-        ram[69] = round(robot[n].x)
-        ram[70] = round(robot[n].y)
+        robot[n].ram[69] = round(robot[n].x)
+        robot[n].ram[70] = round(robot[n].y)
     if int_num == 3:
         time_used = 2
-        if ram[65] == 0:
+        if robot[n].ram[65] == 0:
             robot[n].keepshift = False
         else:
             robot[n].keepshift = True
-        ram[70] = robot[n].shift & 255
+        robot[n].ram[70] = robot[n].shift & 255
     if int_num == 4:
-        if ram[65] == 0:
+        if robot[n].ram[65] == 0:
             robot[n].overburn = False
         else:
             robot[n].overburn = True
     if int_num == 5:
         time_used = 2
-        ram[70] = robot[n].transponder
+        robot[n].ram[70] = robot[n].transponder
     if int_num == 6:
         time_used = 2
-        ram[69] = game_cycle >> 16
-        ram[70] = game_cycle & 65535
+        robot[n].ram[69] = game_cycle >> 16
+        robot[n].ram[70] = game_cycle & 65535
     if int_num == 7:
-        j = ram[69]
-        k = ram[70]
+        j = robot[n].ram[69]
+        k = robot[n].ram[70]
         if j < 0:
             j = 0
         if j > 1000:
@@ -2167,61 +2201,61 @@ def call_int(n,int_num,time_used):
             k = 0
         if k > 1000:
             k = 1000
-        ram[65] = round(find_angle(round(robot[n].x), round(robot[n].y),j,k) / math.pi * 128 + 256) & 255
+        robot[n].ram[65] = round(find_angle(round(robot[n].x), round(robot[n].y),j,k) / math.pi * 128 + 256) & 255
         time_used = 32
     if int_num == 8:
-        ram[70] = ram[5]
+        robot[n].ram[70] = robot[n].ram[5]
         time_used = 1
     if int_num == 9:
-        ram[69] = ram[6]
-        ram[70] = ram[7]
+        robot[n].ram[69] = robot[n].ram[6]
+        robot[n].ram[70] = robot[n].ram[7]
         time_used = 2
     if int_num == 10:
         k = 0
         for i in range(0,num_robots):
             if robot[i].armor > 0:
                 k += 1
-        ram[68] = k
-        ram[69] = played
-        ram[70] = matches
+        robot[n].ram[68] = k
+        robot[n].ram[69] = played
+        robot[n].ram[70] = matches
         time_used = 4
     if int_num == 11:
-        ram[68] = round(robot[n].speed * 100)
-        ram[69] = robot[n].last_damage
-        ram[70] = robot[n].last_hit
+        robot[n].ram[68] = round(robot[n].speed * 100)
+        robot[n].ram[69] = robot[n].last_damage
+        robot[n].ram[70] = robot[n].last_hit
         time_used = 5
     if int_num == 12:
-        ram[70] = ram[8]
+        robot[n].ram[70] = robot[n].ram[8]
         time_used = 1
     if int_num == 13:
-        ram[8] = 0
+        robot[n].ram[8] = 0
         time_used = 1
     if int_num == 14:
-        com_transmit(n, Robot[n].channel, ram[65])
+        com_transmit(n, Robot[n].channel, robot[n].ram[65])
         time_used = 1
     if int_num == 15:
-        if ram[10] != ram[11]:
-            ram[70] = com_receive(n)
+        if robot[n].ram[10] != robot[n].ram[11]:
+            robot[n].ram[70] = com_receive(n)
         else:
             robot_error(n,12,'')
         time_used = 1
     if int_num == 16:
-        if (ram[11] >= ram[10]):
-            ram[70] = ram[11]-ram[10]
+        if (ram[11] >= robot[n].ram[10]):
+            robot[n].ram[70] = robot[n].ram[11]-ram[10]
         else:
-            ram[70] = max_queue + 1 - ram[10] + ram[11]
+            robot[n].ram[70] = max_queue + 1 - robot[n].ram[10] + robot[n].ram[11]
         time_used = 1
     if int_num == 17:
-        ram[10] = 0
-        ram[11] = 0
+        robot[n].ram[10] = 0
+        robot[n].ram[11] = 0
         time_used = 1
     if int_num == 18:
-        ram[68] = robot[n].kills
-        ram[69] = robot[n].kills - robot[n].startkills
-        ram[70] = robot[n].deaths
+        robot[n].ram[68] = robot[n].kills
+        robot[n].ram[69] = robot[n].kills - robot[n].startkills
+        robot[n].ram[70] = robot[n].deaths
         time_used = 3
     if int_num == 19:
-        ram[9] = 0
+        robot[n].ram[9] = 0
         robot[n].meters = 0
     else:
         robot_error(n,10,cstr(int_num))
@@ -2263,14 +2297,17 @@ def update_debug_window(): # lines 2404-2428
 # def close_debug_window():
 
 def gameover():
+    global game_cycle
+    global game_limit
+    global num_robots
     if (game_cycle >= game_limit) and (game_limit > 0):
         return True
     if game_cycle & 31 == 0:
         k = 0
-        for n in range(0, num_robots + 1):
+        for n in range(num_robots + 1):
             if robot[n].armor > 0:
                 k += 1
-            if k <= 1:
+            if k <= 0:
                 return True
             else:
                 return False
@@ -2928,29 +2965,29 @@ def show_statistics():
     sx = 24
     sy = 93-num_robots*3
         
-    viewport(0,0,639,479)
-    box(sx+0,sy,sx+591,sy+102+num_robots*12)
-    hole(sx + 4, sy + 4, sx + 587, sy + 98 + num_robots * 12)
-    setfillpattern(gray50,1)
-    bar(sx+5,sy+5,sx+586,sy+97+num_robots*12)
-    setcolor(15)
+    # viewport(0,0,639,479)
+    # box(sx+0,sy,sx+591,sy+102+num_robots*12)
+    # hole(sx + 4, sy + 4, sx + 587, sy + 98 + num_robots * 12)
+    # setfillpattern(gray50,1)
+    # bar(sx+5,sy+5,sx+586,sy+97+num_robots*12)
+    # setcolor(15)
     
-    outtextxy(sx+16,sy+20, 'Robot        Scored wins Matches Armor kills death shots')
+    # outtextxy(sx+16,sy+20, 'Robot        Scored wins Matches Armor kills death shots')
     
-    outtextxy(sx+16,sy+30)
+    # outtextxy(sx+16,sy+30)
     
     n = -1
     k =0
     
-    for i in range(0,num_robots):
+    for i in range(num_robots):
         armor = robot[i].armor
         if armor > 0 | armor == won:
             k +=1
         
-        for i in range(0,num_robots):
+        for i in range(num_robots):
             armor = robot[i].armor
             
-            setcolor(robot_color(i))
+            # setcolor(robot_color(i))
             if k==1 and n == i:
                 j =1
             else:
@@ -2963,18 +3000,18 @@ def show_statistics():
                +addfront(cstr(armor)+'%',9)+addfront(cstr(kills),7)
                +addfront(cstr(deaths),8)+addfront(cstr(match_shots),9));
                 '''
-            outtextxy(sx+16,sy+42+i*12,addfront(str(i+1),2) +'- '+ addrear(fn,15) + str(j))
-        setcolor(15)
+            # outtextxy(sx+16,sy+42+i*12,addfront(str(i+1),2) +'- '+ addrear(fn,15) + str(j))
+        # setcolor(15)
         
-        outtextxy(sx+16,sy+64,num_robots*12,victor_string(k,n))
+        # outtextxy(sx+16,sy+64,num_robots*12,victor_string(k,n))
         
         if windoze:
             outtextxy(sx+16,sy+76+num_robots*12, 'Press any key to continue...')
             flushkey
             readkey
         
-        textcolor(15)
-        print(13+' ' + 13)
+        # textcolor(15)
+        print(str(13) + ' ' + str(13))
         
         print('\n Match', played, '/', matches, 'results')
         
@@ -2985,19 +3022,16 @@ def show_statistics():
         k= 0
         for i in range(0,num_robots):
             armor= robot[i].armor
-            textcolor(robot_color[i])
+            # textcolor(robot_color[i])
             
             if k==1 and n==i:
                 j =1
             else:
                 j =0
                 
-            print('''writeln(addfront(cstr(i+1),2)+' - '+addrear(fn,15)+cstr(j)
-             +addfront(cstr(wins),8)+addfront(cstr(trials),8)
-             +addfront(cstr(armor)+'%',9)+addfront(cstr(kills),7)
-             +addfront(cstr(deaths),8)+addfront(cstr(match_shots),9));''')
-            textcolor(15)
-            print('/n')
+            print(addfront(cstr(i + 1), 2) + ' - ' + addrear(robot[n].fn, 15)+cstr(j) + addfront(cstr(robot[n].wins), 8) + addfront(cstr(robot[n].trials), 8) + addfront(cstr(robot[n].armor) + '%', 9) + addfront(cstr(robot[n].kills), 7) + addfront(cstr(robot[n].deaths), 8) + addfront(cstr(robot[n].match_shots), 9))
+            # textcolor(15)
+            # print('\n')
             print(victor_string(k,n))
             print('\n')
 
@@ -3033,9 +3067,16 @@ def init_bout():
     if graphix and (step_mode > 0):
         init_debug_window
     if not graphix:
-        textcolor(7)
+        pass
+        # textcolor(7)
 
 def bout():
+    pdb.set_trace()
+    global game_cycle
+    global game_delay
+    global played
+    global step_loop
+    global step_mode
     global _quit
     if _quit:
         sys.exit()
@@ -3043,14 +3084,15 @@ def bout():
     init_bout()
     bout_over = False
     if step_mode == 0:
-        step_loop == False
+        step_loop = False
     else:
         step_loop = True
     step_count = -1
     if graphix and (step_mode > 0):
         for i in range(0,num_robots):
             draw_robot(i)
-    while not _quit and not gameover and not bout_over:
+    # pdb.set_trace()
+    while not _quit and not gameover() and not bout_over:
         game_cycle += 1
         for i in range(0,num_robots):
             if robot[i].armor > 0:
@@ -3067,7 +3109,7 @@ def bout():
             time_delay(game_delay)
 
         if keypressed:
-            c = readkey.upper()
+            c = str(pygame.key.get_pressed()).upper()
         else:
             c = chr(255)
 
@@ -3199,7 +3241,7 @@ def main():
         begin_window 
     if matches > 0:
         for i in range(1, matches + 1):
-            bout 
+            bout()
     if not graphix:
         print()
     if _quit:
@@ -3208,7 +3250,7 @@ def main():
         print()
         print()
         graph_mode(False)
-        textcolor(15)
+        # textcolor(15)
         print('Bout complete! (', matches, ' matches)')
         print()
         k = 0
@@ -3223,9 +3265,9 @@ def main():
         print('Robot           Wins  Matches  Kills  Deaths    Shots')
         print('~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~')
         for i in range(0, num_robots + 1):
-            textcolor(robot_color(i))
+            # textcolor(robot_color(i))
             print(addfront(cstr(i + 1), 2) + ' - ' + addrear(robot[i].fn, 8) + addfront(cstr(robot[i].wins), 7) + addfront(cstr(robot[i].trials), 8) + addfront(cstr(robot[i].kills), 8) + addfront(cstr(robot[i].deaths), 8) + addfront(cstr(robot[i].shots_fired), 9))
-        textcolor(15)
+        # textcolor(15)
         print()
         if k == 1:
             print('Robot #', n + 1, ' (', robot[n].fn, ') wins the bout! (score: ', w, '/', matches, ')')
@@ -3234,7 +3276,10 @@ def main():
         print()
     elif graphix:
         graph_mode(False)
-        show_statistics 
+        show_statistics()
     if report:
-        write_report
+        write_report()
 
+pygame.init()
+main()
+pygame.quit()
