@@ -1242,7 +1242,7 @@ def _compile(n,filename):
     lock_pos = 0
     locktype = 0
     lock_dat = 0
-    if not exist(filename):
+    if not os.path.isfile(filename):
         prog_error(8,filename)
     # textcolor(robot_color(n))
     print('Compiling robot #' + str(n + 1) + ': ' + filename)
@@ -1250,9 +1250,9 @@ def _compile(n,filename):
     # textcolor(robot_color(n))
     numvars = 0
     numlabels = 0
-    for k in range(0, max_code):
-        for i in range(0, max_op):
-            code[k].op[i] = 0
+    for k in range(max_code):
+        for i in range(max_op):
+            robot[n].code[k].op[i] = 0
     plen = 0
     f = open(filename,'r') # DOES THIS NEED TO HAVE WRITE PERMISSIONS?
     s = ''
@@ -1341,7 +1341,6 @@ def _compile(n,filename):
                                 
 #################### THE COMPILE FUNCTION IS NOT COMPLETED YET #########################                        
 
-# needs review: how does this function actually access config.attribute?
 def robot_config(n):
     if robot[n].config.scanner == 5:
         robot[n].scanrange = 1500
@@ -1804,11 +1803,11 @@ def init():
     # {create_robot(0,'SDUCK');}
     delete_compile_report()
     # pdb.set_trace()
-    if len(sys.argv) > 0: # paramcount is # of args passed to command line which is len(sys.argv)
-        for i in range(1, paramcount+1):
-            parse_param(btrim(ucase(paramstr(i)))) # uses ATR2FUNC
+    if len(sys.argv) > 1:
+        for i in range(1, len(sys.argv)):
+            parse_param(btrim(sys.argv[i].upper())) # uses ATR2FUNC
     else:
-        prog_error(5, '') # ported
+        prog_error(5, '')
     temp_mode = step_mode # {store initial step_mode}
     if logging_errors:
         for i in range (0, num_robots + 1):
