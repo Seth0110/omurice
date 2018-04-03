@@ -1356,6 +1356,33 @@ def _compile(n,filename):
                                 locktype = value(rstr(s2, len(s2) - 4))
                                 lock_code = btrim(s3.upper())
                                 print('Robot is of LOCKed format from this point forward. [' + locktype + ']')
+                                # print('Using key: "', lock_code, '"')
+                                for i in range(len(lock_code)):
+                                    lock_code[i] = chr(ord(lock_code[i]) - 65)
+                            elif s2 == 'MSG':
+                                name = msg
+                            elif s2 == 'TIME':
+                                robot_time_limit = value(s3)
+                                if robot_time_limit < 0:
+                                    robot_time_limit = 0
+                            elif s2 == 'CONFIG':
+                                if lstr(s3, 8) == 'SCANNER=':
+                                    robot[n].config.scanner = value(rstr(s3, len(s3) - 8))
+                                elif lstr(s3, 7) == 'SHIELD=':
+                                    robot[n].config.shield == value(rstr(s3, len(s3) - 7))
+                                elif lstr(s3, 7) == 'WEAPON=':
+                                    robot[n].config.weapon = value(rstr(s3, len(s3) - 7))
+                                elif lstr(s3, 6) == 'ARMOR=':
+                                    robot[n].config.armor = value(rstr(s3, len(s3) - 6))
+                                elif lstr(s3, 7) == 'ENGINE=':
+                                    robot[n].config.engine = value(rstr(s3, len(s3) - 7))
+                                elif lstr(s3, 10) == 'HEATSINKS=':
+                                    robot[n].config.heatsinks = value(rstr(s3,len(s3) - 10))
+                                elif lstr(s3, 6) == 'MINES=':
+                                    robot[n].config.mines = value(rstr(s3, len(s3) - 6))
+                                else:
+                                    prog_error(20, s3)
+                                
                                 
 #################### THE COMPILE FUNCTION IS NOT COMPLETED YET #########################                        
 
