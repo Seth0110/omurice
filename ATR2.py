@@ -54,6 +54,7 @@ import time
 import os
 import pdb
 import pygame
+import sys
 
 progname = 'AT-Robots'
 version = '2.11'
@@ -1801,9 +1802,11 @@ def init():
     #textcolor(7) # graphical 
     print()
     # {create_robot(0,'SDUCK');}
-    delete_compile_report() 
-    if len(sys.argv - 1) > 0: # paramcount is # of args passed to command line which is len(sys.argv) 
-        parse_param(btrim(ucase(paramstr(i)))) # uses ATR2FUNC
+    delete_compile_report()
+    # pdb.set_trace()
+    if len(sys.argv) > 0: # paramcount is # of args passed to command line which is len(sys.argv)
+        for i in range(1, paramcount+1):
+            parse_param(btrim(ucase(paramstr(i)))) # uses ATR2FUNC
     else:
         prog_error(5, '') # ported
     temp_mode = step_mode # {store initial step_mode}
@@ -3406,5 +3409,7 @@ def main():
         write_report()
 
 pygame.init()
+init()
 main()
+shutdown()
 pygame.quit()
