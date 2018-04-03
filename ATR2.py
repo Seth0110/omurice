@@ -242,6 +242,23 @@ robot = [robot_rec() for i in range(-2, max_robots + 3)]
 num_robots = 2
 
 # compiler variables
+f = open('f', 'a').close()
+numvars = 0
+numlabels = 0
+maxcode = 0
+lock_pos = 0
+lock_dat = 0
+varname = []
+varname = ['' for i in range(1, max_vars + 1)]
+varloc = []
+varloc = [0 for i in range(1, max_vars + 1)]
+labelname = []
+labelname = ['' for i in range(1, max_vars + 1)]
+varnum = []
+varnum = [0 for i in range(1, max_labels + 1)]
+show_source = False 
+compile_only False
+lock_code = ''
 
 # simulator/graphics variables
 bout_over = False # made global from procedure bout
@@ -1246,7 +1263,7 @@ def _compile(n,filename):
         prog_error(8,filename)
     # textcolor(robot_color(n))
     print('Compiling robot #' + str(n + 1) + ': ' + filename)
-    is_locked = False
+    robot[n].is_locked = False
     # textcolor(robot_color(n))
     numvars = 0
     numlabels = 0
