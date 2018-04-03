@@ -242,6 +242,23 @@ robot = [robot_rec() for i in range(-2, max_robots + 3)]
 num_robots = 2
 
 # compiler variables
+f = open('f', 'a').close()
+numvars = 0
+numlabels = 0
+maxcode = 0
+lock_pos = 0
+lock_dat = 0
+varname = []
+varname = ['' for i in range(1, max_vars + 1)]
+varloc = []
+varloc = [0 for i in range(1, max_vars + 1)]
+labelname = []
+labelname = ['' for i in range(1, max_vars + 1)]
+varnum = []
+varnum = [0 for i in range(1, max_labels + 1)]
+show_source = False 
+compile_only = False
+lock_code = ''
 
 # simulator/graphics variables
 bout_over = False # made global from procedure bout
@@ -1238,6 +1255,9 @@ def check_plen(plen):
         prog_error(16,'\t\nMaximum program length exceeded, (Limit: ' + cstr(maxcode+1) + ' compiled lines)')
 
 def _compile(n,filename):
+    global numvars
+    global numlabels
+    global f
     lock_code = ''
     lock_pos = 0
     locktype = 0
@@ -1246,30 +1266,28 @@ def _compile(n,filename):
         prog_error(8,filename)
     # textcolor(robot_color(n))
     print('Compiling robot #' + str(n + 1) + ': ' + filename)
-    is_locked = False
+    robot[n].is_locked = False
     # textcolor(robot_color(n))
     numvars = 0
     numlabels = 0
     for k in range(max_code):
         for i in range(max_op):
             robot[n].code[k].op[i] = 0
-    plen = 0
+    robot[n].plen = 0
     f = open(filename,'r') # DOES THIS NEED TO HAVE WRITE PERMISSIONS?
     s = ''
     linecount = 0
     for line in f: # This whole loop is probably bugged...
-        if s == '#END' or plen > maxcode:
+        if s == '#END' '''or plen > maxcode''':
             break
         linecount += 1
+        if locktype < 3:
+            lock_pos = 0
         if lock_code != '':
             for i in s:
                 lock_pos += 1
                 if lock_pos > len(lock_code):
                     lock_pos = 0
-                if lock_code != '':
-                    lock_pos += 1
-                    if lock_pos > len(lock_code):
-                        lock_pos = 0
                     if locktype == 3: # THIS MUST MATCH ATRLOCK FILE ALGORITHM
                         s[i] = chr((ord(s[i]) - 1) ^ (ord(lock_code[lock_pos]) ^ lock_dat))
                     if locktype == 2:
