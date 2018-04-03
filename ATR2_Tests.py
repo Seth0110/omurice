@@ -63,7 +63,7 @@ max_robot_lines = 8
 
 # FUNCTIONS START!!!!!!
 
-
+'''
 def init_function_test():
 
     # Calls init()
@@ -94,10 +94,10 @@ def init_function_test():
     print("maxcode: " + maxcode)
 
     # Function calls
-    '''
-    make_tables() # IS IN ATR2FUNC, CREATES the arrays that contain Sint and Cost values
-    randomize()  # NOt in any of the files for the game, must be in a library somewhere
-    '''
+    
+    #make_tables() # IS IN ATR2FUNC, CREATES the arrays that contain Sint and Cost values
+    #randomize()  # NOt in any of the files for the game, must be in a library somewhere
+    
 
     print("num_robots: " + num_robots)
     print("game_limit:" + game_limit)
@@ -109,14 +109,50 @@ def init_function_test():
     print("reg_name: " + reg_name)
     print("reg_num: " + reg_num)
 
-'''
+
+
+
 def test_operand():
 
-def test_mnemonic():
 
-def test_log_error():
+
+def test_mnemonic(n, m):
+    a = A.mnemonic(n, m)
+    print(a)
+    print('alph')
+
+    # b = A.mnemonic(1, 1)
+    # print(b)
+
+    if (a == 'NOP'):
+        print('Pass')
+
+    else:
+        print('Fail')
+
+
+test_mnemonic(00, 0)
+'''
+
 
 def test_max_shown():
+    a = A.max_shown(1)
+    b = A.max_shown(3)
+
+    if a == 12 and b == 6:
+        print('Pass')
+    else:
+        print('Fail')
+
+
+test_max_shown()
+
+'''
+
+
+def test_log_error():   #Procedure
+
+
 
 def test_graph_check():
 
