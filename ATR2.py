@@ -214,9 +214,7 @@ class robot_rec:
     code = prog_type
     ram = [0 for i in range(0, max_ram + 1)]
     mine = [mine_rec() for i in range(0, max_mines + 1)]
-
-    errorlog = open('errorlog', 'a').close() # Seth: I think this isn't needed, just use a filename 'errorlog'
-
+    
 class missile_rec:
     x = 0
     y = 0
@@ -3376,6 +3374,7 @@ def init_bout():
         # textcolor(7)
 
 def bout():
+    pdb.set_trace()
     global game_cycle
     global game_delay
     global played
