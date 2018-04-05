@@ -3,6 +3,12 @@
 ### A very incomplete to-do list, please add to this things you see wrong!##########################
 # Robots aren't being compiled properly
 # Need to figure out what keypressed is supposed to do, can use pygame for this, until then keypressed returns false
+
+# keypressed basically shows whether a key was pressed or not but it
+# unfortunately has something to do with checking the buffer (which is the 
+# reason for all of those calls to 'clear buffer'). I'm not sure whether or not
+# this'll cause a problem once we use Pygame. 
+# More info: https://www.freepascal.org/docs-html/rtl/crt/keypressed.html 
 ####################################################################################################
 
 # Copyright (c) 1999, Ed T. Toton III. All rights reserved.
