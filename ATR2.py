@@ -220,6 +220,7 @@ class robot_rec:
     code = prog_type
     ram = [0 for i in range(0, max_ram + 1)]
     mine = [mine_rec() for i in range(0, max_mines + 1)]
+    errorlog = open('errorlog', 'a').close() # not sure who removed this/why, but it's needed by many functions
     
 class missile_rec:
     x = 0
@@ -466,30 +467,30 @@ def log_error(n,i,ov):
             else:
                 s = 'Unknown error'
 
-            print(errorlog + '<' + i + '> ' + s + ' (Line #' + ip + ') [Cycle: ' + game_cycle + ', Match: ' + played + '/' + matches + ']\n')
-            print(errorlog + ' ' + mnemonic(code[ip].op[0] + code[ip].op[3] and 15) + '  ' + 
-                  operand(code[ip].op[1] + (code[ip].op[3] >> 4) & 15) + ' +  ' + 
-                  operand(code[ip].op[2] + (code[ip].op[3] >> 8) & 15))
+            print(robot[n].errorlog + '<' + i + '> ' + s + ' (Line #' + robot[n].ip + ') [Cycle: ' + game_cycle + ', Match: ' + played + '/' + matches + ']\n')
+            print(robot[n].errorlog + ' ' + mnemonic(robot[n].code[robot[n].ip].op[0] + robot[n].code[robot[n].ip].op[3] and 15) + '  ' + 
+                  operand(robot[n].code[robot[n].ip].op[1] + (robot[n].code[robot[n].ip].op[3] >> 4) & 15) + ' +  ' + 
+                  operand(robot[n].code[robot[n].ip].op[2] + (robot[n].code[robot[n].ip].op[3] >> 8) & 15))
             if ov != '':
-                print(errorlog + '    (Values: ' + ov + ')')
+                print(robot[n].errorlog + '    (Values: ' + ov + ')')
             else:
-                print(errorlog)
+                print(robot[n].errorlog)
                 
-            print(errorlog + ' AX=' + addrear(chr(ram[65])+',',7))
-            print(errorlog + ' BX=' + addrear(chr(ram[66])+',',7))
-            print(errorlog + ' CX=' + addrear(chr(ram[67])+',',7))
-            print(errorlog + ' DX=' + addrear(chr(ram[68])+',',7))
-            print(errorlog + ' EX=' + addrear(chr(ram[69])+',',7))
-            print(errorlog + ' FX=' + addrear(chr(ram[70])+',',7))
-            print(errorlog + ' Flags=' + robot[n].ram[64] + '\n')
-            print(errorlog + ' AX=' + addrear(hex(ram[65])+',',7))
-            print(errorlog + ' BX=' + addrear(hex(ram[66])+',',7))
-            print(errorlog + ' CX=' + addrear(hex(ram[67])+',',7))
-            print(errorlog + ' DX=' + addrear(hex(ram[68])+',',7))
-            print(errorlog + ' EX=' + addrear(hex(ram[69])+',',7))
-            print(errorlog + ' FX=' + addrear(hex(ram[70])+',',7))
-            print(errorlog + ' Flags=' + hex(ram[64]))
-            print(errorlog)
+            print(robot[n].errorlog + ' AX=' + addrear(chr(robot[n].ram[65])+',',7))
+            print(robot[n].errorlog + ' BX=' + addrear(chr(robot[n].ram[66])+',',7))
+            print(robot[n].errorlog + ' CX=' + addrear(chr(robot[n].ram[67])+',',7))
+            print(robot[n].errorlog + ' DX=' + addrear(chr(robot[n].ram[68])+',',7))
+            print(robot[n].errorlog + ' EX=' + addrear(chr(robot[n].ram[69])+',',7))
+            print(robot[n].errorlog + ' FX=' + addrear(chr(robot[n].ram[70])+',',7))
+            print(robot[n].errorlog + ' Flags=' + robot[n].ram[64] + '\n')
+            print(robot[n].errorlog + ' AX=' + addrear(hex(robot[n].ram[65])+',',7))
+            print(robot[n].errorlog + ' BX=' + addrear(hex(robot[n].ram[66])+',',7))
+            print(robot[n].errorlog + ' CX=' + addrear(hex(robot[n].ram[67])+',',7))
+            print(robot[n].errorlog + ' DX=' + addrear(hex(robot[n].ram[68])+',',7))
+            print(robot[n].errorlog + ' EX=' + addrear(hex(robot[n].ram[69])+',',7))
+            print(robot[n].errorlog + ' FX=' + addrear(hex(robot[n].ram[70])+',',7))
+            print(robot[n].errorlog + ' Flags=' + hex(robot[n].ram[64]))
+            print(robot[n].errorlog)
 
 def max_shown():
     if stats_mode == 1:
@@ -526,40 +527,40 @@ def update_armor(n):
         #needs more work
         robot[n].n
         robot_graph(n)
-        if armor>0:
+        if robot[n].armor>0:
             if stats_mode == 1:
-                bar(30,13,29+armor,18)
-                bar(88,3,87+(armor >> 2),8)
+                bar(30,13,29+robot[n].armor,18)
+                bar(88,3,87+(robot[n].armor >> 2),8)
             else:
-                bar(30,25,29+armor,30)
+                bar(30,25,29+robot[n].armor,30)
         setfillstyle(1,8)
-        if armor < 100:
+        if robot[n].armor < 100:
             if stats_mode == 1:
-                bar(30+armor,13,129,18)
+                bar(30+robot[n].armor,13,129,18)
             elif stats_mode == 2:
-                bar(88+(armor >> 2), 3,111,8)
+                bar(88+(robot[n].armor >> 2), 3,111,8)
             else:
-                bar(30+armor,25,129,30)
+                bar(30+robot[n].armor,25,129,30)
                 
 def update_heat(n):
     if graph_check(n) & step_mode <= 0:
         robot[n].n
         robot_graph(n)
-        if heat > 5:
+        if robot[n].heat > 5:
             if stats_mode == 1:
-                bar(30,23,29+(heat // 5), 28)
+                bar(30,23,29+(robot[n].heat // 5), 28)
             elif stats_mode == 2:
-                bar(127,3,126+(heat // 20),8)
+                bar(127,3,126+(robot[n].heat // 20),8)
             else:
-                bar(30,35,29+(heat // 5),40)
+                bar(30,35,29+(robot[n].heat // 5),40)
         setfillstyle(1,8)
-        if heat<500:
+        if robot[n].heat<500:
             if stats_mode == 1:
-                bar(30,(heat // 5),23,129,28)
+                bar(30,(robot[n].heat // 5),23,129,28)
             elif stats_mode == 2:
-                bar(127+(heat // 20), 3,151,8) # find *(heat div 20)
+                bar(127+(robot[n].heat // 20), 3,151,8) # find *(heat div 20)
             else:
-                bar(30+(heat // 5), 35,129,40)
+                bar(30+(robot[n].heat // 5), 35,129,40)
                 
 def robot_error(n,i,ov):
     if graph_check(n) & step_mode<=0:
@@ -583,9 +584,9 @@ def update_lives(n):
         setfillstyle(1,0)
         bar(11,46,'K:')  # check K:
         outtextxy(11,46,'K:')
-        outtextxy(29,46,zero_pad(kills,4))
+        outtextxy(29,46,zero_pad(robot[n].kills,4))
         outtextxy(80,46,'D:')   # check D:
-        outtextxy(98,46,zero_pad(deaths,4))
+        outtextxy(98,46,zero_pad(robot[n].deaths,4))
 
 def update_cycle_window():
     if not graphix:
@@ -768,7 +769,7 @@ def parse1(n,p,s):
             found = True
         if s[i] == 'MOD':
             opcode= 9
-            foudn= True
+            found= True
         if s[i] == 'RET':
             opcode = 10
             found = True
@@ -1247,10 +1248,10 @@ def parse1(n,p,s):
                     found = True
                     
                 if found:
-                    code[p].op[i] = opcode
+                    robot[n].code[p].op[i] = opcode
                     if indirect:
                         microcode = microcode | 8
-                        code[p].op[max_op] = code[p].op[max_op] or (microcode << (i*4)) # check
+                        robot[n].code[p].op[max_op] = robot[n].code[p].op[max_op] or (microcode << (i*4)) # check
                 elif s[i] !='':
                     prog_error(2,s[i])
     
@@ -1922,6 +1923,8 @@ def init():
     global time_slice
     global default_slice
     global temp_mode
+    global delay_per_sec
+    global sound_on
     if debugging_compiler or compile_by_line or show_code:
         print("!!! Warning !!! Compiler Debugging enabled !!!")
         print() 
@@ -3385,6 +3388,7 @@ def bout():
     global step_loop
     global step_mode
     global _quit
+    global graphix
     if _quit:
         sys.exit()
     played += 1
