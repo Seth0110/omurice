@@ -1981,7 +1981,6 @@ def init():
     print()
     # {create_robot(0,'SDUCK');}
     delete_compile_report()
-    # pdb.set_trace()
     if len(sys.argv) > 1:
         for i in range(1, len(sys.argv)):
             parse_param(btrim(sys.argv[i].upper())) # uses ATR2FUNC
@@ -3252,7 +3251,7 @@ def do_missile(n):
                                 update_lives(source)
     #draw missile
 
-def victor_string(k, n): # lines 3284-3293
+def victor_string(k, n):
     s = ''
     if k == 1:
         s = 'Robot #' + cstr(n + 1) + ' (' + robot[n].fn + ') wins!'
@@ -3380,7 +3379,6 @@ def init_bout():
         # textcolor(7)
 
 def bout():
-    pdb.set_trace()
     global game_cycle
     global game_delay
     global played
