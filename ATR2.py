@@ -3324,21 +3324,21 @@ def show_statistics():
         # textcolor(15)
         print(str(13) + ' ' + str(13))
         
-        print('\n Match', played, '/', matches, 'results')
+        print('\n Match', played, '/', matches, 's')
         
         print('Robot       scored wins matches Armor kills death shots')
         print('............................................')
         
         n = -1
-        k= 0
-        for i in range(0,num_robots):
-            armor= robot[i].armor
+        k = 0
+        for i in range(num_robots):
+            armor = robot[i].armor
             # textcolor(robot_color[i])
             
-            if k==1 and n==i:
-                j =1
+            if k == 1 and n == i:
+                j = 1
             else:
-                j =0
+                j = 0
                 
             print(addfront(cstr(i + 1), 2) + ' - ' + addrear(robot[n].fn, 15)+cstr(j) + addfront(cstr(robot[n].wins), 8) + addfront(cstr(robot[n].trials), 8) + addfront(cstr(robot[n].armor) + '%', 9) + addfront(cstr(robot[n].kills), 7) + addfront(cstr(robot[n].deaths), 8) + addfront(cstr(robot[n].match_shots), 9))
             # textcolor(15)
