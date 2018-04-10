@@ -3590,8 +3590,13 @@ def main():
     if report:
         write_report()
 
-pygame.init()
-init()
-main()
-shutdown()
-pygame.quit()
+#pygame.init()
+#init()
+#main()
+#shutdown()
+#pygame.quit()
+
+if __name__ == "__main__":
+    print("Ran Directly")
+else:
+    print("Being Imported")
