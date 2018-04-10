@@ -3289,12 +3289,12 @@ def show_statistics():
     n = -1
     k =0
     
-    for i in range(num_robots):
+    for i in range(num_robots + 1):
         armor = robot[i].armor
         if armor > 0 | armor == won:
             k +=1
         
-        for i in range(num_robots):
+        for i in range(num_robots + 1):
             armor = robot[i].armor
             
             # setcolor(robot_color(i))
@@ -3331,7 +3331,7 @@ def show_statistics():
         
         n = -1
         k = 0
-        for i in range(num_robots):
+        for i in range(num_robots + 1):
             armor = robot[i].armor
             # textcolor(robot_color[i])
             
@@ -3369,7 +3369,7 @@ def init_bout():
         missile[i].lx = 0
         missile[i].ly = 0
         missile[i].mult = 1
-    for i in range(num_robots):
+    for i in range(num_robots + 1):
         robot[i].mem_watch = 128
         reset_hardware(i)
         reset_software(i)
@@ -3400,17 +3400,17 @@ def bout():
         step_loop = True
     step_count = -1
     if graphix and (step_mode > 0):
-        for i in range(num_robots):
+        for i in range(num_robots + 1):
             draw_robot(i)
     while not _quit and not gameover() and not bout_over:
         game_cycle += 1
-        for i in range(num_robots):
+        for i in range(num_robots + 1):
             if robot[i].armor > 0:
                 do_robot(i)
         for i in range(max_missiles):
             if missile[i].a > 0:
                 do_missile(i)
-        for i in range(num_robots):
+        for i in range(num_robots + 1):
             for k in range(max_mines):
                 if robot[i].mine[k]._yield > 0:
                     do_mine(i,k)
@@ -3590,13 +3590,11 @@ def main():
     if report:
         write_report()
 
-#pygame.init()
-#init()
-#main()
-#shutdown()
-#pygame.quit()
-
 if __name__ == "__main__":
-    print("Ran Directly")
+    pygame.init()
+    init()
+    main()
+    shutdown()
+    pygame.quit()
 else:
     print("Being Imported")
