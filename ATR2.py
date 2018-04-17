@@ -79,10 +79,10 @@ maxint = 32787
 minint = -32768
 
 # debugging/compiler
-show_code = False
+show_code = True
 compile_by_line = False
 max_var_len = 16
-debugging_compiler = False
+debugging_compiler = True
 
 # robots
 max_robots = 31  # starts at 0, so total is max_robots + 1
@@ -262,7 +262,7 @@ labelname = ['' for i in range(1, max_vars + 1)]
 labelnum = [x for x in range(max_labels)]
 varnum = []
 varnum = [0 for i in range(1, max_labels + 1)]
-show_source = False 
+show_source = True
 compile_only = False
 lock_code = ''
 
@@ -1258,7 +1258,7 @@ def parse1(n,p,s):
     if show_code:
         print_code(n,p)
     if compile_by_line:
-        readkey
+        readkey()
 
 def check_plen(plen):
     if plen > maxcode:
@@ -1284,6 +1284,7 @@ def _compile(n,filename):
     for k in range(max_code):
         for i in range(max_op):
             robot[n].code[k].op[i] = 0
+    #pdb.set_trace()
     robot[n].plen = 0
     f = open(filename,'r')
     s = ''
@@ -1321,7 +1322,7 @@ def _compile(n,filename):
                 if pygame.key.get_pressed() == chr(27):
                     sys.exit()
             k = 0
-            for i in range(len(t)-1,0,-1):
+            for i in range(len(t) - 1, 0, -1):
                 if i == ';':
                     k = i
             if k > 0:
@@ -3267,13 +3268,13 @@ def victor_string(k, n):
 def show_statistics():
     i = 0
     j = 0
-    k =0
+    k = 0
     n = 0
     sx = 0
     sy = 0
     
     sx = 24
-    sy = 93-num_robots*3
+    sy = 93 - num_robots * 3
         
     # viewport(0,0,639,479)
     # box(sx+0,sy,sx+591,sy+102+num_robots*12)
@@ -3291,15 +3292,13 @@ def show_statistics():
     
     for i in range(num_robots + 1):
         armor = robot[i].armor
-        if armor > 0 | armor == won:
-            k +=1
-        
+        if robot[i].armor > 0 | robot[i].armor == robot[i].won:
+            k += 1
         for i in range(num_robots + 1):
-            armor = robot[i].armor
-            
+            robot[i].armor = robot[i].armor
             # setcolor(robot_color(i))
-            if k==1 and n == i:
-                j =1
+            if k == 1 and n == i:
+                j = 1
             else:
                 j = 0
                 
@@ -3315,36 +3314,41 @@ def show_statistics():
         
         # outtextxy(sx+16,sy+64,num_robots*12,victor_string(k,n))
         
-        if windoze:
-            pass
+    if windoze:
+        pass
             # outtextxy(sx+16,sy+76+num_robots*12, 'Press any key to continue...')
             # flushkey
             # readkey
         
         # textcolor(15)
-        print(str(13) + ' ' + str(13))
-        
-        print('\n Match', played, '/', matches, 's')
-        
-        print('Robot       scored wins matches Armor kills death shots')
-        print('............................................')
-        
-        n = -1
-        k = 0
-        for i in range(num_robots + 1):
-            armor = robot[i].armor
-            # textcolor(robot_color[i])
-            
-            if k == 1 and n == i:
-                j = 1
-            else:
-                j = 0
-                
-            print(addfront(cstr(i + 1), 2) + ' - ' + addrear(robot[n].fn, 15)+cstr(j) + addfront(cstr(robot[n].wins), 8) + addfront(cstr(robot[n].trials), 8) + addfront(cstr(robot[n].armor) + '%', 9) + addfront(cstr(robot[n].kills), 7) + addfront(cstr(robot[n].deaths), 8) + addfront(cstr(robot[n].match_shots), 9))
-            # textcolor(15)
-            # print('\n')
-            print(victor_string(k,n))
-            print('\n')
+    print(chr(13) + ' ' + chr(13))
+    print('\n Match', played, '/', matches, 's')        
+    print('Robot            Scored   Wins  Matches  Armor  Kills  Deaths    Shots')
+    print('~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~')
+    n = -1
+    k = 0
+    for i in range(num_robots + 1):
+        if robot[i].armor > 0 or robot[i].won:
+            k += 1
+            n = i
+    for i in range(num_robots + 1):
+    # textcolor(robot_color[i])
+        if k == 1 and n == i:
+            j = 1
+        else:
+            j = 0                
+            print(addfront(cstr(i + 1), 2) + ' - ' + \
+                  addrear(robot[i].fn, 15)+cstr(j) + \
+                  addfront(cstr(robot[i].wins), 8) + \
+                  addfront(cstr(robot[i].trials), 8) + \
+                  addfront(cstr(robot[i].armor) + '%', 9) + \
+                  addfront(cstr(robot[i].kills), 7) + \
+                  addfront(cstr(robot[i].deaths), 8) + \
+                  addfront(cstr(robot[i].match_shots), 9))
+    # textcolor(15)
+    # print('\n')
+    print(victor_string(k,n))
+    print('\n')
 
 def score_robots():
     k = 0
@@ -3414,6 +3418,7 @@ def bout():
             for k in range(max_mines):
                 if robot[i].mine[k]._yield > 0:
                     do_mine(i,k)
+        # pdb.set_trace()
                 
         if graphix and timing:
             time_delay(game_delay)
