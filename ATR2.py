@@ -692,8 +692,8 @@ def parse1(n,p,s):
     for i in range(max_op - 1):
         k = 0
         found = False
-        opcode=0
-        microcode=0
+        opcode = 0
+        microcode = 0
         s[i] = btrim(ucase(s[i]))
         indirect = False
         # Microcode:
@@ -710,7 +710,7 @@ def parse1(n,p,s):
         if lstr(s[i], 1) == '[' and (rstr(s[i], 1) == ']'):
             s[i] = copy(s[i],2,len(s[i])-2)
             indirect = True        
-        if (not found) and (s[i][1] == '!'):
+        if (not found) and (s[i][0] == '!'):
             ss = s[i]
             ss = btrim(rstr(ss,len(ss)-1))
             if numlabels > 0:
@@ -1284,14 +1284,15 @@ def _compile(n,filename):
     for k in range(max_code):
         for i in range(max_op):
             robot[n].code[k].op[i] = 0
-    #pdb.set_trace()
     robot[n].plen = 0
     f = open(filename,'r')
     s = ''
     linecount = 0
     for line in f:
+        #pdb.set_trace()
         if s == '#END': # and plen <= maxcode
             break
+        s = line
         linecount += 1
         if locktype < 3:
             lock_pos = 0
@@ -1307,160 +1308,160 @@ def _compile(n,filename):
                 else:
                     s[i] = chr(ord(s[i]) ^ ord(lock_code[lock_pos]))
                 lock_dat = ord(s[i]) & 15
-            s = btrim(s)
-            orig_s = s
-            t = ''
-            for i in s:
-                if int(i) in range(0,33) or int(i) in range(128,256):
-                   t += ' '
-                else:
-                    t = i
-            s = t
-            if show_source and ((lock_code == '') or debugging_compiler):
-                print(zero_pad(linecount, 3) + ':' + zero_pad(robot[n].plen, 3) + ' ' + s)
-            if debugging_compiler:
-                if pygame.key.get_pressed() == chr(27):
-                    sys.exit()
-            k = 0
-            for i in range(len(t) - 1, 0, -1):
-                if i == ';':
-                    k = i
-            if k > 0:
-                s = lstr(t, k - 1)
-            s = btrim(t.upper())
-            for i in range(max_op):
-                pp.append('') # pp[i] += ''
-            if (len(s) > 0) and (s[0] != ';'):
-                if s[0] == '#': # Compiler Directives
-                    s1 = btrim(rstr(s,length(s)-1)).upper()
-                    msg = btrim(rstr(orig_s, length(orig_s) - 5))
+        s = btrim(s)
+        orig_s = s
+        t = ''
+        for i in s:
+            if ord(i) in range(0,33) or ord(i) in range(128,256) or i == ',':
+                t += ' '
+            else:
+                t = i
+        s = t
+        if show_source and ((lock_code == '') or debugging_compiler):
+            print(zero_pad(linecount, 3) + ':' + zero_pad(robot[n].plen, 3) + ' ' + s)
+        if debugging_compiler:
+            if pygame.key.get_pressed() == chr(27):
+                sys.exit()
+        k = 0
+        for i in range(len(t) - 1, 0, -1):
+            if i == ';':
+                k = i
+        if k > 0:
+            s = lstr(t, k - 1)
+        s = btrim(t.upper())
+        for i in range(max_op):
+            pp.append('') # pp[i] += ''
+        if (len(s) > 0) and (s[0] != ';'):
+            if s[0] == '#': # Compiler Directives
+                s1 = btrim(rstr(s,length(s)-1)).upper()
+                msg = btrim(rstr(orig_s, length(orig_s) - 5))
+                k = 0
+                for i in range(0, s1):
+                    if (k == 0) and (s1[i] == ' '):
+                        k = i
+                k -= 1
+                if k > 1:
+                    s2 = lstr(s1, k)
+                    s3 = btrim(rstr(s1, len(s1) - k)).upper()
                     k = 0
-                    for i in range(0, s1):
-                        if (k == 0) and (s1[i] == ' '):
-                            k = i
-                    k -= 1
-                    if k > 1:
-                        s2 = lstr(s1, k)
-                        s3 = btrim(rstr(s1, len(s1) - k)).upper()
-                        k = 0
-                        if numvars > 0:
-                            for i in range(0, numvars):
-                                if s3 == varname[i]:
-                                    k = i
-                        if (s2 == 'DEF') and (numvars < max_vars):
-                            if len(s3) > max_var_len:
-                                prog_error(12, s3)
-                            elif k > 0: # This had an obscure if-else structure
+                    if numvars > 0:
+                        for i in range(0, numvars):
+                            if s3 == varname[i]:
+                                k = i
+                    if (s2 == 'DEF') and (numvars < max_vars):
+                        if len(s3) > max_var_len:
+                            prog_error(12, s3)
+                        elif k > 0: # This had an obscure if-else structure
+                            prog_error(11, s3)
+                        else:
+                            numvars += 1
+                            if numvars > max_vars:
                                 prog_error(11, s3)
                             else:
                                 numvars += 1
                                 if numvars > max_vars:
-                                    prog_error(11, s3)
+                                    prog_error(14, '')
                                 else:
-                                    numvars += 1
-                                    if numvars > max_vars:
-                                        prog_error(14, '')
-                                    else:
-                                        varname[numvars] = s3
-                                        varloc[numvars] = 127 + numvars
-                        elif (lstr(s2, 4) == 'LOCK'):
-                            is_locked = True
-                            if len(s2) > 4:
-                                locktype = value(rstr(s2, len(s2) - 4))
-                                lock_code = btrim(s3.upper())
-                                print('Robot is of LOCKed format from this point forward. [' + locktype + ']')
+                                    varname[numvars] = s3
+                                    varloc[numvars] = 127 + numvars
+                    elif (lstr(s2, 4) == 'LOCK'):
+                        is_locked = True
+                        if len(s2) > 4:
+                            locktype = value(rstr(s2, len(s2) - 4))
+                            lock_code = btrim(s3.upper())
+                            print('Robot is of LOCKed format from this point forward. [' + locktype + ']')
                                 # print('Using key: "', lock_code, '"')
-                                for i in range(len(lock_code)):
-                                    lock_code[i] = chr(ord(lock_code[i]) - 65)
-                            elif s2 == 'MSG':
-                                name = msg
-                            elif s2 == 'TIME':
-                                robot_time_limit = value(s3)
-                                if robot_time_limit < 0:
-                                    robot_time_limit = 0
-                            elif s2 == 'CONFIG':
-                                if lstr(s3, 8) == 'SCANNER=':
-                                    robot[n].config.scanner = value(rstr(s3, len(s3) - 8))
-                                elif lstr(s3, 7) == 'SHIELD=':
-                                    robot[n].config.shield == value(rstr(s3, len(s3) - 7))
-                                elif lstr(s3, 7) == 'WEAPON=':
-                                    robot[n].config.weapon = value(rstr(s3, len(s3) - 7))
-                                elif lstr(s3, 6) == 'ARMOR=':
-                                    robot[n].config.armor = value(rstr(s3, len(s3) - 6))
-                                elif lstr(s3, 7) == 'ENGINE=':
-                                    robot[n].config.engine = value(rstr(s3, len(s3) - 7))
-                                elif lstr(s3, 10) == 'HEATSINKS=':
-                                    robot[n].config.heatsinks = value(rstr(s3,len(s3) - 10))
-                                elif lstr(s3, 6) == 'MINES=':
-                                    robot[n].config.mines = value(rstr(s3, len(s3) - 6))
-                                else:
-                                    prog_error(20, s3)
-                                if robot[n].config.scanner < 0:
-                                    robot[n].config.scanner = 0
-                                if robot[n].config.scanner > 5:
-                                    robot[n].config.scanner = 5
-                                if robot[n].config.weapon < 0:
-                                    robot[n].config.weapon = 0
-                                if robot[n].config.weapon > 5:
-                                    robot[n].config.weapon = 5
-                                if robot[n].config.armor < 0:
-                                    robot[n].config.armor = 0
-                                if robot[n].config.armor > 5:
-                                    robot[n].config.armor = 5
-                                if robot[n].config.engine < 0:
-                                    robot[n].config.engine = 0
-                                if robot[n].config.engine > 5:
-                                    robot[n].config.engine = 5
-                                if robot[n].config.heatsinks < 0:
-                                    robot[n].config.heatsinks = 0
-                                if robot[n].config.heatsinks > 5:
-                                    robot[n].config.heatsinks = 0
-                                if robot[n].config.mines < 0:
-                                    robot[n].config.mines = 0
-                                if robot[n].config.mines > 5:
-                                    robot[n].config.mines = 5
-                        print('Warning: unknown directive "' + s2 + '"')
-                if s[0] == '*': # Inline Pre-Compiled Machine Code
-                    check_plen(robot[n].plen)
-                    for i in range(max_op):
-                        pp[i] = ''
-                    for i in range(1,len(s)):
-                        if s[i] == '*':
-                            prog_error(23, s)
-                    k = 0
-                    i = 1
-                    s1 = ''
-                    if len(s) <= 2:
-                        prog_error(22, s)
-                    while (i < len(s)) and (k <= max_op):
-                        i += 1
-                        if ord(s[i]) in [x in range(33,42), x in range(43,128)]:
-                            pp[k] = pp[k] + s[i]
-                        elif ord(s[i]) in [x in range(0,33), x in range(128, 256)] and ord(s[i-1]) in [x in range(33, 42), x in range(43, 128)]:
-                            k += 1
-                    for i in range(max_op):
-                        code[robot[n].plen].op[i] = str2int(pp[i])
-                    robot[n].plen += 1
-                if s[0] == ':': # :labels
-                    check_plen(robot[n].plen)
-                    s1 = rstr(s, len(s) - 1)
-                    for i in range(len(s1)):
-                        if not s1[i] in range(9):
-                            prog_error(1, s)
-                    code[robot[n].plen].op[0] = str2int(s1)
-                    code[robot[n].plen].op[max_op] = 2
-                    if show_code:
-                        print_code(n, robot[n].plen)
-                    robot[n].plen += 1
-                if s[0] == '!': # !labels
-                    check_plen(robot[n].plen)
-                    s1 = btrim(rstr(s, len(s) - 1))
-                    k = 0
-                    for i in range(len(s1),0,-1):
-                        if s1[i] in [';', chr(8), chr(9), chr(10), ' ', ',']:
-                            k = i
-                    if k > 0:
-                        s1 = lstr(s1, k - 1)
+                            for i in range(len(lock_code)):
+                                lock_code[i] = chr(ord(lock_code[i]) - 65)
+                        elif s2 == 'MSG':
+                            name = msg
+                        elif s2 == 'TIME':
+                            robot_time_limit = value(s3)
+                            if robot_time_limit < 0:
+                                robot_time_limit = 0
+                        elif s2 == 'CONFIG':
+                            if lstr(s3, 8) == 'SCANNER=':
+                                robot[n].config.scanner = value(rstr(s3, len(s3) - 8))
+                            elif lstr(s3, 7) == 'SHIELD=':
+                                robot[n].config.shield == value(rstr(s3, len(s3) - 7))
+                            elif lstr(s3, 7) == 'WEAPON=':
+                                robot[n].config.weapon = value(rstr(s3, len(s3) - 7))
+                            elif lstr(s3, 6) == 'ARMOR=':
+                                robot[n].config.armor = value(rstr(s3, len(s3) - 6))
+                            elif lstr(s3, 7) == 'ENGINE=':
+                                robot[n].config.engine = value(rstr(s3, len(s3) - 7))
+                            elif lstr(s3, 10) == 'HEATSINKS=':
+                                robot[n].config.heatsinks = value(rstr(s3,len(s3) - 10))
+                            elif lstr(s3, 6) == 'MINES=':
+                                robot[n].config.mines = value(rstr(s3, len(s3) - 6))
+                            else:
+                                prog_error(20, s3)
+                            if robot[n].config.scanner < 0:
+                                robot[n].config.scanner = 0
+                            if robot[n].config.scanner > 5:
+                                robot[n].config.scanner = 5
+                            if robot[n].config.weapon < 0:
+                                robot[n].config.weapon = 0
+                            if robot[n].config.weapon > 5:
+                                robot[n].config.weapon = 5
+                            if robot[n].config.armor < 0:
+                                robot[n].config.armor = 0
+                            if robot[n].config.armor > 5:
+                                robot[n].config.armor = 5
+                            if robot[n].config.engine < 0:
+                                robot[n].config.engine = 0
+                            if robot[n].config.engine > 5:
+                                robot[n].config.engine = 5
+                            if robot[n].config.heatsinks < 0:
+                                robot[n].config.heatsinks = 0
+                            if robot[n].config.heatsinks > 5:
+                                robot[n].config.heatsinks = 0
+                            if robot[n].config.mines < 0:
+                                robot[n].config.mines = 0
+                            if robot[n].config.mines > 5:
+                                robot[n].config.mines = 5
+                    print('Warning: unknown directive "' + s2 + '"')
+            if s[0] == '*': # Inline Pre-Compiled Machine Code
+                check_plen(robot[n].plen)
+                for i in range(max_op):
+                    pp[i] = ''
+                for i in range(1,len(s)):
+                    if s[i] == '*':
+                        prog_error(23, s)
+                k = 0
+                i = 1
+                s1 = ''
+                if len(s) <= 2:
+                    prog_error(22, s)
+                while (i < len(s)) and (k <= max_op):
+                    i += 1
+                    if ord(s[i]) in [x in range(33,42), x in range(43,128)]:
+                        pp[k] = pp[k] + s[i]
+                    elif ord(s[i]) in [x in range(0,33), x in range(128, 256)] and ord(s[i-1]) in [x in range(33, 42), x in range(43, 128)]:
+                        k += 1
+                for i in range(max_op):
+                    code[robot[n].plen].op[i] = str2int(pp[i])
+                robot[n].plen += 1
+            if s[0] == ':': # :labels
+                check_plen(robot[n].plen)
+                s1 = rstr(s, len(s) - 1)
+                for i in range(len(s1)):
+                    if not s1[i] in range(9):
+                        prog_error(1, s)
+                code[robot[n].plen].op[0] = str2int(s1)
+                code[robot[n].plen].op[max_op] = 2
+                if show_code:
+                    print_code(n, robot[n].plen)
+                robot[n].plen += 1
+            if s[0] == '!': # !labels
+                check_plen(robot[n].plen)
+                s1 = btrim(rstr(s, len(s) - 1))
+                k = 0
+                for i in range(len(s1) - 1,0,-1):
+                    if s1[i] in [';', chr(8), chr(9), chr(10), ' ', ',']:
+                        k = i
+                if k > 0:
+                    s1 = lstr(s1, k - 1)
                     k = 0
                     for i in range(numlabels):
                         if labelname[i] == s1:
@@ -1477,23 +1478,23 @@ def _compile(n,filename):
                 else:
                     check_plen(robot[n].plen)
                     k = 0
-                    for i in range(len(s), 0, -1):
-                        if s[i] == ';':
-                            k = i
-                    if k > 0:
-                        s = lstr(s, k - 1)
-                    k = 0
-                    for j in range(max_op):
-                        pp[j] = ''
-                    for j in range(len(s)):
-                        c = s[j]
-                        if not c in [' ', chr(8), chr(9), chr(10), ','] and k <= max_op:
+                for i in range(len(s) - 1, 0, -1):
+                    if s[i] == ';':
+                        k = i
+                if k > 0:
+                    s = lstr(s, k - 1)
+                k = 0
+                for j in range(max_op):
+                    pp[j] = ''
+                for j in range(len(s)):
+                    c = s[j]
+                    if not c in [' ', chr(8), chr(9), chr(10), ','] and k <= max_op:
                             pp[k] = pp[k] + c
-                        elif not lc in [' ', chr(8), chr(9), chr(10), ',']:
-                            k = k + 1
-                        lc = c
-                    parse1(n, robot[n].plen, pp)
-                    robot[n].plen += 1
+                    elif not lc in [' ', chr(8), chr(9), chr(10), ',']:
+                        k = k + 1
+                    lc = c
+                parse1(n, robot[n].plen, pp)
+                robot[n].plen += 1
     f.close()
     if robot[n].plen <= maxcode:
         for i in range(max_op):
@@ -1507,7 +1508,7 @@ def _compile(n,filename):
     if numlabels > 0:
         for i in range(robot[n].plen):
             for j in range(max_op - 1):
-                if code[i].op[max_op] >> (j * 4) == 3: # unresolved !label
+                if robot[n].code[i].op[max_op] >> (j * 4) == 3: # unresolved !label
                     k = code[i].op[j]
                     if k > 0 and k <= numlabels:
                         l = labelnum[k]
@@ -3418,8 +3419,7 @@ def bout():
             for k in range(max_mines):
                 if robot[i].mine[k]._yield > 0:
                     do_mine(i,k)
-        # pdb.set_trace()
-                
+                    
         if graphix and timing:
             time_delay(game_delay)
 
