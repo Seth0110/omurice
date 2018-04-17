@@ -1,7 +1,7 @@
 # ATR2 Test functions
-# Date: 1-13-2018
-
-import ATR2.py as A
+# Date
+import unittest
+from ATR2 import max_shown
 
 '''
 #CONSTANTS
@@ -135,17 +135,16 @@ test_mnemonic(00, 0)
 '''
 
 
-def test_max_shown():
-    a = A.max_shown(1)
-    b = A.max_shown(3)
+class TestMaxShown(unittest.TestCase):
 
-    if a == 12 and b == 6:
-        print('Pass')
-    else:
-        print('Fail')
+    def test_max_shown(self):
+        a = max_shown(1)
+
+        self.assertEqual(a, 6)
 
 
-test_max_shown()
+if __name__ == '__main__':
+    unittest.main()
 
 '''
 

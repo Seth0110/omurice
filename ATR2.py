@@ -1984,7 +1984,6 @@ def init():
     print()
     # {create_robot(0,'SDUCK');}
     delete_compile_report()
-    # pdb.set_trace()
     if len(sys.argv) > 1:
         for i in range(1, len(sys.argv)):
             parse_param(btrim(sys.argv[i].upper())) # uses ATR2FUNC
@@ -3255,7 +3254,7 @@ def do_missile(n):
                                 update_lives(source)
     #draw missile
 
-def victor_string(k, n): # lines 3284-3293
+def victor_string(k, n):
     s = ''
     if k == 1:
         s = 'Robot #' + cstr(n + 1) + ' (' + robot[n].fn + ') wins!'
@@ -3290,12 +3289,12 @@ def show_statistics():
     n = -1
     k =0
     
-    for i in range(num_robots):
+    for i in range(num_robots + 1):
         armor = robot[i].armor
         if armor > 0 | armor == won:
             k +=1
         
-        for i in range(num_robots):
+        for i in range(num_robots + 1):
             armor = robot[i].armor
             
             # setcolor(robot_color(i))
@@ -3325,21 +3324,21 @@ def show_statistics():
         # textcolor(15)
         print(str(13) + ' ' + str(13))
         
-        print('\n Match', played, '/', matches, 'results')
+        print('\n Match', played, '/', matches, 's')
         
         print('Robot       scored wins matches Armor kills death shots')
         print('............................................')
         
         n = -1
-        k= 0
-        for i in range(0,num_robots):
-            armor= robot[i].armor
+        k = 0
+        for i in range(num_robots + 1):
+            armor = robot[i].armor
             # textcolor(robot_color[i])
             
-            if k==1 and n==i:
-                j =1
+            if k == 1 and n == i:
+                j = 1
             else:
-                j =0
+                j = 0
                 
             print(addfront(cstr(i + 1), 2) + ' - ' + addrear(robot[n].fn, 15)+cstr(j) + addfront(cstr(robot[n].wins), 8) + addfront(cstr(robot[n].trials), 8) + addfront(cstr(robot[n].armor) + '%', 9) + addfront(cstr(robot[n].kills), 7) + addfront(cstr(robot[n].deaths), 8) + addfront(cstr(robot[n].match_shots), 9))
             # textcolor(15)
@@ -3370,7 +3369,7 @@ def init_bout():
         missile[i].lx = 0
         missile[i].ly = 0
         missile[i].mult = 1
-    for i in range(num_robots):
+    for i in range(num_robots + 1):
         robot[i].mem_watch = 128
         reset_hardware(i)
         reset_software(i)
@@ -3383,7 +3382,6 @@ def init_bout():
         # textcolor(7)
 
 def bout():
-    pdb.set_trace()
     global game_cycle
     global game_delay
     global played
@@ -3402,17 +3400,17 @@ def bout():
         step_loop = True
     step_count = -1
     if graphix and (step_mode > 0):
-        for i in range(num_robots):
+        for i in range(num_robots + 1):
             draw_robot(i)
     while not _quit and not gameover() and not bout_over:
         game_cycle += 1
-        for i in range(num_robots):
+        for i in range(num_robots + 1):
             if robot[i].armor > 0:
                 do_robot(i)
         for i in range(max_missiles):
             if missile[i].a > 0:
                 do_missile(i)
-        for i in range(num_robots):
+        for i in range(num_robots + 1):
             for k in range(max_mines):
                 if robot[i].mine[k]._yield > 0:
                     do_mine(i,k)
@@ -3592,8 +3590,11 @@ def main():
     if report:
         write_report()
 
-pygame.init()
-init()
-main()
-shutdown()
-pygame.quit()
+if __name__ == "__main__":
+    pygame.init()
+    init()
+    main()
+    shutdown()
+    pygame.quit()
+else:
+    print("Being Imported")
