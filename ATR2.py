@@ -708,7 +708,7 @@ def parse1(n,p,s):
             microcode = 0
             found = True
         if lstr(s[i], 1) == '[' and (rstr(s[i], 1) == ']'):
-            s[i] = copy(s[i],2,len(s[i])-2)
+            s[i] = copy(s[i], 2, len(s[i]) - 2)
             indirect = True        
         if (not found) and (s[i][0] == '!'):
             ss = s[i]
@@ -1289,7 +1289,6 @@ def _compile(n,filename):
     s = ''
     linecount = 0
     for line in f:
-        #pdb.set_trace()
         if s == '#END': # and plen <= maxcode
             break
         s = line
@@ -1315,28 +1314,34 @@ def _compile(n,filename):
             if ord(i) in range(0,33) or ord(i) in range(128,256) or i == ',':
                 t += ' '
             else:
-                t = i
+                t += i
         s = t
         if show_source and ((lock_code == '') or debugging_compiler):
             print(zero_pad(linecount, 3) + ':' + zero_pad(robot[n].plen, 3) + ' ' + s)
         if debugging_compiler:
             if pygame.key.get_pressed() == chr(27):
                 sys.exit()
-        k = 0
-        for i in range(len(t) - 1, 0, -1):
-            if i == ';':
+        k = -1
+        for i in range(len(t) - 1, -1, -1):
+            if s[i] == ';':
                 k = i
-        if k > 0:
-            s = lstr(t, k - 1)
-        s = btrim(t.upper())
-        for i in range(max_op):
-            pp.append('') # pp[i] += ''
+        if k == 0:
+            s = ''
+        elif k > 0:
+            print('k: ' + str(k))
+            print('before: ' + s)
+            s = s[0:k - 1]
+            s = s[k-1]
+            print('after: ' + s)
+        s = btrim(s.upper())
+        # for i in range(max_op):
+        #    pp.append('') # This is already at length max_op?!
         if (len(s) > 0) and (s[0] != ';'):
             if s[0] == '#': # Compiler Directives
-                s1 = btrim(rstr(s,length(s)-1)).upper()
-                msg = btrim(rstr(orig_s, length(orig_s) - 5))
+                s1 = btrim(rstr(s,len(s)-1)).upper()
+                msg = btrim(rstr(orig_s, len(orig_s) - 5))
                 k = 0
-                for i in range(0, s1):
+                for i in range(0, len(s1)):
                     if (k == 0) and (s1[i] == ' '):
                         k = i
                 k -= 1
@@ -1474,14 +1479,14 @@ def _compile(n,filename):
                             prog_error(15, '')
                         k = numlabels
                     labelname[k] = s1
-                    labelum[k] = robot[n].plen
+                    labelnum[k] = robot[n].plen
                 else:
                     check_plen(robot[n].plen)
                     k = 0
                 for i in range(len(s) - 1, 0, -1):
                     if s[i] == ';':
                         k = i
-                if k > 0:
+                if k >= 0:
                     s = lstr(s, k - 1)
                 k = 0
                 for j in range(max_op):
@@ -1496,6 +1501,8 @@ def _compile(n,filename):
                 parse1(n, robot[n].plen, pp)
                 robot[n].plen += 1
     f.close()
+    # Add our implied NOP if there's room. This was originally to make sure
+    # no one tries using an empty robot program, kinda pointless otherwise
     if robot[n].plen <= maxcode:
         for i in range(max_op):
             pp[i] = ''
