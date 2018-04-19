@@ -59,7 +59,7 @@ def hexb(num):
 
 # convert a 16 bit unsigned int to a hex string
 def hex(num): # num:word
-    return hexb(num >> 8) + hexb(num & 255)
+    return hexb(int(num) >> 8) + hexb(int(num) & 255)
 
 # casts a string to int, returns 0 if unsuccessful
 def valuer(i): # i:string

@@ -1328,11 +1328,8 @@ def _compile(n,filename):
         if k == 0:
             s = ''
         elif k > 0:
-            print('k: ' + str(k))
-            print('before: ' + s)
             s = s[0:k - 1]
-            s = s[k-1]
-            print('after: ' + s)
+            s = s[k - 1]
         s = btrim(s.upper())
         # for i in range(max_op):
         #    pp.append('') # This is already at length max_op?!
@@ -1346,7 +1343,7 @@ def _compile(n,filename):
                         k = i
                 k -= 1
                 if k > 1:
-                    s2 = lstr(s1, k)
+                    s2 = lstr(s1, k + 1)
                     s3 = btrim(rstr(s1, len(s1) - k)).upper()
                     k = 0
                     if numvars > 0:
@@ -1356,19 +1353,15 @@ def _compile(n,filename):
                     if (s2 == 'DEF') and (numvars < max_vars):
                         if len(s3) > max_var_len:
                             prog_error(12, s3)
-                        elif k > 0: # This had an obscure if-else structure
+                        elif k > 0:
                             prog_error(11, s3)
                         else:
                             numvars += 1
                             if numvars > max_vars:
-                                prog_error(11, s3)
+                                prog_error(14, '')
                             else:
-                                numvars += 1
-                                if numvars > max_vars:
-                                    prog_error(14, '')
-                                else:
-                                    varname[numvars] = s3
-                                    varloc[numvars] = 127 + numvars
+                                varname[numvars - 1] = s3
+                                varloc[numvars - 1] = 127 + numvars
                     elif (lstr(s2, 4) == 'LOCK'):
                         is_locked = True
                         if len(s2) > 4:
@@ -1378,54 +1371,55 @@ def _compile(n,filename):
                                 # print('Using key: "', lock_code, '"')
                             for i in range(len(lock_code)):
                                 lock_code[i] = chr(ord(lock_code[i]) - 65)
-                        elif s2 == 'MSG':
-                            name = msg
-                        elif s2 == 'TIME':
-                            robot_time_limit = value(s3)
-                            if robot_time_limit < 0:
-                                robot_time_limit = 0
-                        elif s2 == 'CONFIG':
-                            if lstr(s3, 8) == 'SCANNER=':
-                                robot[n].config.scanner = value(rstr(s3, len(s3) - 8))
-                            elif lstr(s3, 7) == 'SHIELD=':
-                                robot[n].config.shield == value(rstr(s3, len(s3) - 7))
-                            elif lstr(s3, 7) == 'WEAPON=':
-                                robot[n].config.weapon = value(rstr(s3, len(s3) - 7))
-                            elif lstr(s3, 6) == 'ARMOR=':
-                                robot[n].config.armor = value(rstr(s3, len(s3) - 6))
-                            elif lstr(s3, 7) == 'ENGINE=':
-                                robot[n].config.engine = value(rstr(s3, len(s3) - 7))
-                            elif lstr(s3, 10) == 'HEATSINKS=':
-                                robot[n].config.heatsinks = value(rstr(s3,len(s3) - 10))
-                            elif lstr(s3, 6) == 'MINES=':
-                                robot[n].config.mines = value(rstr(s3, len(s3) - 6))
-                            else:
-                                prog_error(20, s3)
-                            if robot[n].config.scanner < 0:
-                                robot[n].config.scanner = 0
-                            if robot[n].config.scanner > 5:
-                                robot[n].config.scanner = 5
-                            if robot[n].config.weapon < 0:
-                                robot[n].config.weapon = 0
-                            if robot[n].config.weapon > 5:
-                                robot[n].config.weapon = 5
-                            if robot[n].config.armor < 0:
-                                robot[n].config.armor = 0
-                            if robot[n].config.armor > 5:
-                                robot[n].config.armor = 5
-                            if robot[n].config.engine < 0:
-                                robot[n].config.engine = 0
-                            if robot[n].config.engine > 5:
-                                robot[n].config.engine = 5
-                            if robot[n].config.heatsinks < 0:
-                                robot[n].config.heatsinks = 0
-                            if robot[n].config.heatsinks > 5:
-                                robot[n].config.heatsinks = 0
-                            if robot[n].config.mines < 0:
-                                robot[n].config.mines = 0
-                            if robot[n].config.mines > 5:
-                                robot[n].config.mines = 5
-                    print('Warning: unknown directive "' + s2 + '"')
+                    elif s2 == 'MSG':
+                        name = msg
+                    elif s2 == 'TIME':
+                        robot_time_limit = value(s3)
+                        if robot_time_limit < 0:
+                            robot_time_limit = 0
+                    elif s2 == 'CONFIG':
+                        if lstr(s3, 8) == 'SCANNER=':
+                            robot[n].config.scanner = value(rstr(s3, len(s3) - 8))
+                        elif lstr(s3, 7) == 'SHIELD=':
+                            robot[n].config.shield == value(rstr(s3, len(s3) - 7))
+                        elif lstr(s3, 7) == 'WEAPON=':
+                            robot[n].config.weapon = value(rstr(s3, len(s3) - 7))
+                        elif lstr(s3, 6) == 'ARMOR=':
+                            robot[n].config.armor = value(rstr(s3, len(s3) - 6))
+                        elif lstr(s3, 7) == 'ENGINE=':
+                            robot[n].config.engine = value(rstr(s3, len(s3) - 7))
+                        elif lstr(s3, 10) == 'HEATSINKS=':
+                            robot[n].config.heatsinks = value(rstr(s3,len(s3) - 10))
+                        elif lstr(s3, 6) == 'MINES=':
+                            robot[n].config.mines = value(rstr(s3, len(s3) - 6))
+                        else:
+                            prog_error(20, s3)
+                        if robot[n].config.scanner < 0:
+                            robot[n].config.scanner = 0
+                        if robot[n].config.scanner > 5:
+                            robot[n].config.scanner = 5
+                        if robot[n].config.weapon < 0:
+                            robot[n].config.weapon = 0
+                        if robot[n].config.weapon > 5:
+                            robot[n].config.weapon = 5
+                        if robot[n].config.armor < 0:
+                            robot[n].config.armor = 0
+                        if robot[n].config.armor > 5:
+                            robot[n].config.armor = 5
+                        if robot[n].config.engine < 0:
+                            robot[n].config.engine = 0
+                        if robot[n].config.engine > 5:
+                            robot[n].config.engine = 5
+                        if robot[n].config.heatsinks < 0:
+                            robot[n].config.heatsinks = 0
+                        if robot[n].config.heatsinks > 5:
+                            robot[n].config.heatsinks = 0
+                        if robot[n].config.mines < 0:
+                            robot[n].config.mines = 0
+                        if robot[n].config.mines > 5:
+                            robot[n].config.mines = 5
+                    else:
+                        print('Warning: unknown directive "' + s2 + '"')
             if s[0] == '*': # Inline Pre-Compiled Machine Code
                 check_plen(robot[n].plen)
                 for i in range(max_op):
@@ -1450,11 +1444,12 @@ def _compile(n,filename):
             if s[0] == ':': # :labels
                 check_plen(robot[n].plen)
                 s1 = rstr(s, len(s) - 1)
-                for i in range(len(s1)):
+                for i in range(1, len(s1)):
                     if not s1[i] in range(9):
+                        print(i)
                         prog_error(1, s)
-                code[robot[n].plen].op[0] = str2int(s1)
-                code[robot[n].plen].op[max_op] = 2
+                robot[n].code[robot[n].plen].op[0] = str2int(s1)
+                robot[n].code[robot[n].plen].op[max_op] = 2
                 if show_code:
                     print_code(n, robot[n].plen)
                 robot[n].plen += 1
