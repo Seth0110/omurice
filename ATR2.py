@@ -511,7 +511,7 @@ def robot_graph(n):
         viewport(480,4+n*35,635,37+n*35)
         max_gx = 155
         max_gy = 33
-    elif stats_mode:
+    elif stats_mode == 2:
         viewport(480,4+n*13,635,15+n*13)
         max_gx = 155
         max_gy = 11
@@ -2572,21 +2572,13 @@ def call_int(n,int_num,time_used):
     else:
         robot_error(n,10,cstr(int_num))
 
-def jump(n,o,inc_ip):
-    i = 0
-    j = 0
-    k = 0
-    l = 0
-    loc = 0
-    
-    robot[n]
-    loc = find_label(n,get_val(n,ip,0), code[ip].op[max_op] >> (o*4))
-    
-    if loc >=0 and loc <= plen:
+def jump(n, o, inc_ip):
+    loc = find_label(n, get_val(n, robot[n].ip, 0), robot[n].code[robot[n].ip].op[max_op] >> (o * 4))
+    if (loc >= 0) and (loc <= robot[n].plen):
         inc_ip = False
-        ip =loc
+        robot[n].ip = loc
     else:
-        robot_error(n,2,cstr(loc))
+        robot_error(n, 2, cstr(loc))
 
 # def update_debug_bars():
 # def update_debug_system():
