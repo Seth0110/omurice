@@ -1420,7 +1420,7 @@ def _compile(n, filename):
                             robot[n].config.mines = 5
                     else:
                         print('Warning: unknown directive "' + s2 + '"')
-            if s[0] == '*': # Inline Pre-Compiled Machine Code
+            elif s[0] == '*': # Inline Pre-Compiled Machine Code
                 print('Inline Machine Code')
                 check_plen(robot[n].plen)
                 for i in range(max_op):
@@ -1442,7 +1442,7 @@ def _compile(n, filename):
                 for i in range(max_op):
                     robot[n].code[robot[n].plen].op[i] = str2int(pp[i])
                 robot[n].plen += 1
-            if s[0] == ':': # :labels
+            elif s[0] == ':': # :labels
                 check_plen(robot[n].plen)
                 s1 = rstr(s, len(s) - 1)
                 for i in range(1, len(s1)):
@@ -1454,7 +1454,7 @@ def _compile(n, filename):
                 if show_code:
                     print_code(n, robot[n].plen)
                 robot[n].plen += 1
-            if s[0] == '!': # !labels
+            elif s[0] == '!': # !labels
                 check_plen(robot[n].plen)
                 s1 = btrim(rstr(s, len(s) - 1))
                 k = 0
@@ -3446,7 +3446,7 @@ def bout():
                         step_mode = 1
                     step_count += 1
                     init_debug_window()
-        if c == '+' or c == '=':
+        elif c == '+' or c == '=':
             if game_delay < 100:
                 if game_delay in range(0,5):
                     game_delay = 5
@@ -3466,7 +3466,7 @@ def bout():
                     game_delay = 75
                 else:
                     game_delay = 100
-        if c == '-' or c == '_':
+        elif c == '-' or c == '_':
             if game_delay > 0:
                 if game_delay in range(0,6):
                     game_delay = 0
@@ -3488,7 +3488,7 @@ def bout():
                     game_delay = 60
                 else:
                     game_delay = 75
-        if c == 'G':
+        elif c == 'G':
             toggle_graphix()
         else:
             process_keypress(c)
