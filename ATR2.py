@@ -674,7 +674,7 @@ def prog_error(n, ss):
     print()
     exit()   
 
-def print_code(n,p):
+def print_code(n, p):
     i = 0
     print(hex(p)+': ')
     for i in range(0,max_op):
@@ -685,7 +685,7 @@ def print_code(n,p):
     print('\n')
     print('\n')
 
-def parse1(n,p,s):
+def parse1(n, p, s):
     global numlabels
     ss = ''
     for i in range(max_op-1):
@@ -1265,7 +1265,7 @@ def check_plen(plen):
     if plen > maxcode:
         prog_error(16,'\t\nMaximum program length exceeded, (Limit: ' + cstr(maxcode+1) + ' compiled lines)')
 
-def _compile(n,filename):
+def _compile(n, filename):
     global numvars
     global numlabels
     lock_code = ''
@@ -1274,7 +1274,7 @@ def _compile(n,filename):
     lock_dat = 0
     pp = [''] * max_op
     if not os.path.isfile(filename):
-        prog_error(8,filename)
+        prog_error(8, filename)
     # textcolor(robot_color(n))
     print('Compiling robot #' + str(n + 1) + ': ' + filename)
     robot[n].is_locked = False
@@ -1285,7 +1285,7 @@ def _compile(n,filename):
         for i in range(max_op):
             robot[n].code[k].op[i] = 0
     robot[n].plen = 0
-    f = open(filename,'r')
+    f = open(filename, 'r')
     s = ''
     linecount = 0
     for line in f:
@@ -1440,7 +1440,7 @@ def _compile(n,filename):
                     elif ord(s[i]) in [x in range(0,33), x in range(128, 256)] and ord(s[i-1]) in [x in range(33, 42), x in range(43, 128)]:
                         k += 1
                 for i in range(max_op):
-                    code[robot[n].plen].op[i] = str2int(pp[i])
+                    robot[n].code[robot[n].plen].op[i] = str2int(pp[i])
                 robot[n].plen += 1
             if s[0] == ':': # :labels
                 check_plen(robot[n].plen)
@@ -1512,7 +1512,7 @@ def _compile(n,filename):
         for i in range(robot[n].plen):
             for j in range(max_op - 1):
                 if robot[n].code[i].op[max_op] >> (j * 4) == 3: # unresolved !label
-                    k = code[i].op[j]
+                    k = robot[n].code[i].op[j]
                     if k > 0 and k <= numlabels:
                         l = labelnum[k]
                         if l < 0:
@@ -1520,9 +1520,9 @@ def _compile(n,filename):
                         if l < 0 or l > maxcode:
                             prog_error(18, '"!' + labelname[k] + '" (' + cstr(l) + ')')
                         else:
-                            code[i].op[j] = l
+                            robot[n].code[i].op[j] = l
                             mask = not (0xF << (j * 4))
-                            code[i].op[max_op] = (code[i].op[max_op] and mask) or (4 << (j * 4))
+                            robot[n].code[i].op[max_op] = (robot[n].code[i].op[max_op] and mask) or (4 << (j * 4))
                     else:
                         prog_error(17, cstr(k))
     # textcolor(7)
@@ -1552,7 +1552,7 @@ def robot_config(n):
     elif robot[n].config.weapon == 1:
         robot[n].shotstrength = 0.8
     else:
-        shotstrength = .5
+        robot[n].shotstrength = .5
         
     if robot[n].config.armor == 5:
         robot[n].damageadj = 0.66
@@ -1598,7 +1598,7 @@ def robot_config(n):
         elif robot[n].config.mines == 1:
             robot[n].mines = 4
         else:
-            mines = 2
+            robot[n].mines = 2
             robot[n].config.mines = 0
             
         robot[n].shields_up = False
@@ -1608,7 +1608,7 @@ def robot_config(n):
             robot[n].config.heatsinks = 0
         
 def reset_software(n):
-    for i in range(0,max_ram):
+    for i in range(0, max_ram):
         robot[n].ram[i] = 0
         robot[n].ram[71] = 768
         robot[n].thd = robot[n].hd
@@ -2394,7 +2394,7 @@ def in_port(n,p,time_used):
     if p == 22:
         v = mines
     if p == 23:
-        if config.mines >= 0:
+        if robot[n].config.mines >= 0:
             k = 0
             for i in range(0, max_mines):
                 if (mine[i].x >= 0) and (mine[i].x <= 1000) and (mine[i].y >= 0) and (mine[i].y <= 1000) and (mine[i]._yield > 0):
@@ -3026,16 +3026,16 @@ def do_robot(n):
         robot[n].heat += 1
     if not robot[n].shields_up:
         if robot[n].heat > 0:
-            if config.heatsinks == 5:
+            if robot[n].config.heatsinks == 5:
                 if game_cycle & 1 == 0:
                     robot[n].heat -= 1
-            elif config.heatsinks == 4:
+            elif robot[n].config.heatsinks == 4:
                 if game_cycle % 3 == 0:
                     robot[n].heat -= 1
-            elif config.heatsinks == 3:
+            elif robot[n].config.heatsinks == 3:
                 if game_cycle & 3 == 0:
                     robot[n].heat -= 1
-            elif config.heatsinks == 2:
+            elif robot[n].config.heatsinks == 2:
                 if game_cycle & 7 == 0:
                     robot[n].heat -= 1
             elif game_cycle & 3 == 0:
