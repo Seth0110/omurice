@@ -679,12 +679,13 @@ def print_code(n, p):
     print(hex(p)+': ')
     for i in range(max_op):
         sys.stdout.write(str(zero_pad(robot[n].code[p].op[i],5)) + ' ')
-    sys.stdout.write('=  ')
+    sys.stdout.write('= ')
     for i in range(max_op):
         sys.stdout.write(str(hex(robot[n].code[p].op[i])) + 'h ')
     print('\n')
 
 def parse1(n, p, s):
+    #pdb.set_trace()
     global numlabels
     ss = ''
     for i in range(max_op-1):
@@ -723,7 +724,7 @@ def parse1(n, p, s):
                             microcode = 3    # unresovled !label
         if not found:
             numlabels +=1
-            if numlabels>max_labels:
+            if numlabels > max_labels:
                 prog_error(15, ' ')
             else:
                 labelname[numlabels] = ss
@@ -1234,29 +1235,27 @@ def parse1(n, p, s):
             microcode = 0
             found = True
         # memory addresses
-        if (not found) and \
-           (s[i][1] == '@') and \
-           s[i][2].isdigit():
+        if (not found) and (s[i][1] == '@') and s[i][2].isdigit():
             opcode = str2int(rstr(s[i], len(s[i])-1))
             if(opcode < 0) or (opcode > (max_ram + 1) + ((max_code + 1) << 3) - 1):
                 prog_error(3,s[i])
                 microcode = 1
                 found = True
                 
-                if (not found) and s[i][1].isdigit():
-                    opcode = str2int(s[i])
-                    found = True
+        if (not found) and s[i][1].isdigit():
+            opcode = str2int(s[i])
+            found = True
                     
-                if found:
-                    robot[n].code[p].op[i] = opcode
-                    if indirect:
-                        microcode = microcode | 8
-                        robot[n].code[p].op[max_op] = robot[n].code[p].op[max_op] or (microcode << (i*4)) # check
-                elif s[i] !='':
-                    prog_error(2,s[i])
+        if found:
+            robot[n].code[p].op[i] = opcode
+            if indirect:
+                microcode = microcode | 8
+                robot[n].code[p].op[max_op] = robot[n].code[p].op[max_op] or (microcode << (i*4)) # check
+        elif s[i] != '':
+            prog_error(2, s[i])
     
     if show_code:
-        print_code(n,p)
+        print_code(n, p)
     if compile_by_line:
         readkey()
 
@@ -1328,8 +1327,7 @@ def _compile(n, filename):
         if k == 0:
             s = ''
         elif k > 0:
-            s = s[0:k - 1]
-            s = s[k:]
+            s = lstr(s, k)
         s = btrim(s.upper())
         # for i in range(max_op):
         #    pp.append('') # This is already at length max_op?!
@@ -1338,12 +1336,12 @@ def _compile(n, filename):
                 s1 = btrim(rstr(s,len(s)-1)).upper()
                 msg = btrim(rstr(orig_s, len(orig_s) - 5))
                 k = 0
-                for i in range(0, len(s1)):
+                for i in range(len(s1)):
                     if (k == 0) and (s1[i] == ' '):
                         k = i
-                k -= 1
+                #k -= 1
                 if k > 1:
-                    s2 = lstr(s1, k + 1)
+                    s2 = lstr(s1, k)
                     s3 = btrim(rstr(s1, len(s1) - k)).upper()
                     k = 0
                     if numvars > 0:
@@ -1379,19 +1377,19 @@ def _compile(n, filename):
                             robot_time_limit = 0
                     elif s2 == 'CONFIG':
                         if lstr(s3, 8) == 'SCANNER=':
-                            robot[n].config.scanner = value(rstr(s3, len(s3) - 8))
+                            robot[n].config.scanner = int(rstr(s3, len(s3) - 8))
                         elif lstr(s3, 7) == 'SHIELD=':
-                            robot[n].config.shield == value(rstr(s3, len(s3) - 7))
+                            robot[n].config.shield == int(rstr(s3, len(s3) - 7))
                         elif lstr(s3, 7) == 'WEAPON=':
-                            robot[n].config.weapon = value(rstr(s3, len(s3) - 7))
+                            robot[n].config.weapon = int(rstr(s3, len(s3) - 7))
                         elif lstr(s3, 6) == 'ARMOR=':
-                            robot[n].config.armor = value(rstr(s3, len(s3) - 6))
+                            robot[n].config.armor = int(rstr(s3, len(s3) - 6))
                         elif lstr(s3, 7) == 'ENGINE=':
-                            robot[n].config.engine = value(rstr(s3, len(s3) - 7))
+                            robot[n].config.engine = int(rstr(s3, len(s3) - 7))
                         elif lstr(s3, 10) == 'HEATSINKS=':
-                            robot[n].config.heatsinks = value(rstr(s3,len(s3) - 10))
+                            robot[n].config.heatsinks = int(rstr(s3,len(s3) - 10))
                         elif lstr(s3, 6) == 'MINES=':
-                            robot[n].config.mines = value(rstr(s3, len(s3) - 6))
+                            robot[n].config.mines = int(rstr(s3, len(s3) - 6))
                         else:
                             prog_error(20, s3)
                         if robot[n].config.scanner < 0:
@@ -1484,8 +1482,8 @@ def _compile(n, filename):
                 for i in range(len(s)-1, 0, -1):
                     if s[i] == ';':
                         k = i
-                if k >= 0:
-                    s = lstr(s, k - 1)
+                if k > 0:
+                    s = lstr(s, k)
                 # Setup variables for parsing
                 k = 0
                 for j in range(max_op):
@@ -1495,8 +1493,8 @@ def _compile(n, filename):
                     if not c in [' ', chr(8), chr(9), chr(10), ','] and k <= max_op:
                         pp[k] = pp[k] + c
                     elif not lc in [' ', chr(8), chr(9), chr(10), ',']:
-                        k = k + 1
-                lc = c
+                        k += 1
+                    lc = c
                 parse1(n, robot[n].plen, pp)
                 robot[n].plen += 1
     f.close()
