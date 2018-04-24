@@ -2396,7 +2396,7 @@ def in_port(n,p,time_used):
     if p == 22:
         v = mines
     if p == 23:
-        if config.mines >= 0:
+        if robot[n].config.mines >= 0:
             k = 0
             for i in range(0, max_mines):
                 if (mine[i].x >= 0) and (mine[i].x <= 1000) and (mine[i].y >= 0) and (mine[i].y <= 1000) and (mine[i]._yield > 0):
@@ -3028,16 +3028,16 @@ def do_robot(n):
         robot[n].heat += 1
     if not robot[n].shields_up:
         if robot[n].heat > 0:
-            if config.heatsinks == 5:
+            if robot[n].config.heatsinks == 5:
                 if game_cycle & 1 == 0:
                     robot[n].heat -= 1
-            elif config.heatsinks == 4:
+            elif robot[n].config.heatsinks == 4:
                 if game_cycle % 3 == 0:
                     robot[n].heat -= 1
-            elif config.heatsinks == 3:
+            elif robot[n].config.heatsinks == 3:
                 if game_cycle & 3 == 0:
                     robot[n].heat -= 1
-            elif config.heatsinks == 2:
+            elif robot[n].config.heatsinks == 2:
                 if game_cycle & 7 == 0:
                     robot[n].heat -= 1
             elif game_cycle & 3 == 0:
