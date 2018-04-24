@@ -1496,7 +1496,7 @@ def _compile(n, filename):
                         pp[k] = pp[k] + c
                     elif not lc in [' ', chr(8), chr(9), chr(10), ',']:
                         k = k + 1
-                lc = c
+                    lc = c
                 parse1(n, robot[n].plen, pp)
                 robot[n].plen += 1
     f.close()
@@ -1525,7 +1525,7 @@ def _compile(n, filename):
                         else:
                             robot[n].code[i].op[j] = l
                             mask = not (0xF << (j * 4))
-                            robot[n].code[i].op[max_op] = (robot[n].code[i].op[max_op] and mask) or (4 << (j * 4))
+                            robot[n].code[i].op[max_op] = (robot[n].code[i].op[max_op] & mask) or (4 << (j * 4))
                     else:
                         prog_error(17, cstr(k))
     # textcolor(7)
@@ -1590,25 +1590,25 @@ def robot_config(n):
         robot[n].speedadj = robot[n].speedadj * 0.5
             
         # heatsinks are handled seperately
-        if robot[n].config.mines == 5:
-            robot[n].mines = 24
-        elif robot[n].config.mines == 4:
-            robot[n].mines = 16
-        elif robot[n].config.mines == 3:
-            robot[n].mines = 10
-        elif robot[n].config.mines == 2:
-            robot[n].mines = 6
-        elif robot[n].config.mines == 1:
-            robot[n].mines = 4
-        else:
-            robot[n].mines = 2
-            robot[n].config.mines = 0
+    if robot[n].config.mines == 5:
+        robot[n].mines = 24
+    elif robot[n].config.mines == 4:
+        robot[n].mines = 16
+    elif robot[n].config.mines == 3:
+        robot[n].mines = 10
+    elif robot[n].config.mines == 2:
+        robot[n].mines = 6
+    elif robot[n].config.mines == 1:
+        robot[n].mines = 4
+    else:
+        robot[n].mines = 2
+        robot[n].config.mines = 0
             
-        robot[n].shields_up = False
-        if (robot[n].config.shield < 3) or (robot[n].config.shield > 5):
-            robot[n].config.shield = 0
-        if (robot[n].config.heatsinks < 0) or (robot[n].config.heatsinks > 5):
-            robot[n].config.heatsinks = 0
+    robot[n].shields_up = False
+    if (robot[n].config.shield < 3) or (robot[n].config.shield > 5):
+        robot[n].config.shield = 0
+    if (robot[n].config.heatsinks < 0) or (robot[n].config.heatsinks > 5):
+        robot[n].config.heatsinks = 0
         
 def reset_software(n):
     for i in range(0, max_ram):
@@ -1725,7 +1725,8 @@ def init_robot(n):
 def create_robot(n, filename):
     #if maxavail < sizeof(robot_rec): # commented out since this will not be a problem on today's computers
         #prog_error(9, base_name(no_path(filename))) 
-    robot[n] 
+    #robot[n]
+    init_robot(n)
     filename = ucase(btrim(filename))
     if filename == filename.split('.')[0]: # base_name(filename) originally
         if filename[0] == '?':
@@ -2328,86 +2329,86 @@ def in_port(n,p,time_used):
     v = 0
     if p == 1:
         v = robot[n].spd
-    if p == 2:
+    elif p == 2:
         v = robot[n].heat
-    if p == 3:
+    elif p == 3:
         v = robot[n].hd
-    if p == 4:
+    elif p == 4:
         v = robot[n].shift
-    if p == 5:
+    elif p == 5:
         v = (robot[n].shift + robot[n].hd) & 255
-    if p == 6:
+    elif p == 6:
         v = robot[n].armor
-    if p == 7:
+    elif p == 7:
         v = scan(n)
         time_used += 1
         if show_arcs:
-            arc_count = 2
-    if p == 8:
+            robot[n].arc_count = 2
+    elif p == 8:
         v = robot[n].accuracy
         time_used += 1
-    if p == 9:
-        robot[n].nn = -1
+    elif p == 9:
+        nn = -1
         time_used += 3
-        robot[n].k = 65535
-        robot[n].nn = -1
+        k = 65535
+        nn = -1
         for i in range(0,num_robots):
-            j = round(distance(x,y,robot[i].x,robot[i].y))
+            j = round(distance(robot[n].x,robot[n].y,robot[i].x,robot[i].y))
             if (n != i) and (j < k) and (robot[i].armor > 0):
                 k = j
                 nn = i
             v = k
             if nn in range(0,num_robots):
                 robot[n].ram[5] = robot[robot[n].nn].transponder
-    if p == 10:
+    elif p == 10:
         v = random.randint(0,65535) + random.randint(0,2)
-    if p == 16:
+    elif p == 16:
         nn = -1
         if show_arcs:
-            sonar_count = 2
+            robot[n].sonar_count = 2
         time_used += 40
         l = -1
         k = 65535
         random[n].nn = -1
         for i in range(0, num_robots):
-            j = round(distance(x, y, robot[i].x, robot[i].y))
+            j = round(distance(robot[n].x, robot[n].y, robot[i].x, robot[i].y))
             if (n != i) and (j < k) and (j < max_sonar) and (robot[i].armor > 0):
                 k = j
                 l = i
                 robot[n].nn = i
         if l >= 0:
-            v = (round(find_angle(x, y, robot[l].x, robot[l].y) / math.pi*128 + 1024 + random(65) - 32) & 255)
+            v = (round(find_angle(robot[n].x, robot[n].y, robot[l].x, robot[l].y) / math.pi*128 + 1024 + random(65) - 32) & 255)
         else:
             v = minint
         if robot[n].nn in range(0,num_robots):
             robot[n].ram[5] = robot[robot[n].nn].transponder
-    if p == 17:
-        v = scanarc
-    if p == 18:
-        if overburn:
+    elif p == 17:
+        v = robot[n].scanarc
+    elif p == 18:
+        if robot[n].overburn:
             v = 1
         else:
             v = 0
-    if p == 19:
-        v = transponder
-    if p == 20:
-        v = shutdown
-    if p == 21:
-        v = channel
-    if p == 22:
-        v = mines
-    if p == 23:
+    elif p == 19:
+        v = robot[n].transponder
+    elif p == 20:
+        v = robot[n].shutdown
+    elif p == 21:
+        v = robot[n].channel
+    elif p == 22:
+        v = robot[n].mines
+    elif p == 23:
         if robot[n].config.mines >= 0:
             k = 0
             for i in range(0, max_mines):
-                if (mine[i].x >= 0) and (mine[i].x <= 1000) and (mine[i].y >= 0) and (mine[i].y <= 1000) and (mine[i]._yield > 0):
+                if (robot[n].mine[i].x >= 0) and (robot[n].mine[i].x <= 1000) and (robot[n].mine[i].y >= 0) and (robot[n].mine[i].y <= 1000) and (robot[n].mine[i]._yield > 0):
                     k += 1
                     v = k
                 else:
                     v = 0
-    if p == 24:
+    elif p == 24:
         if robot[n].config.shield > 0:
-            if shields_up:
+            if robot[n].shields_up:
                 v = 1
             else:
                 v = 0
@@ -2433,7 +2434,7 @@ def out_port(n,p,v,time_used):
             v = 4
         if v < -4:
             v = -4
-        init_missile(x, y, xv, yv, (robot[n].hd + robot[n].shift + v) & 255, n, 0, robot[n].overburn)
+        init_missile(robot[n].x, robot[n].y, robot[n].xv, robot[n].yv, (robot[n].hd + robot[n].shift + v) & 255, n, 0, robot[n].overburn)
     if p == 17:
         robot[n].scanarc = v
     if p == 18:
@@ -2459,7 +2460,7 @@ def out_port(n,p,v,time_used):
     if p == 23:
         if robot[n].config.mines >= 0:
             for i in range(0, max_mines):
-                mine[i].detonate = True
+                robot[n].mine[i].detonate = True
         else:
              robot_error(n, 13, '')   
     if p == 24:
@@ -2529,7 +2530,7 @@ def call_int(n,int_num,time_used):
         time_used = 2
     if int_num == 10:
         k = 0
-        for i in range(0,num_robots):
+        for i in range(0, num_robots):
             if robot[i].armor > 0:
                 k += 1
         robot[n].ram[68] = k
@@ -2548,7 +2549,7 @@ def call_int(n,int_num,time_used):
         robot[n].ram[8] = 0
         time_used = 1
     if int_num == 14:
-        com_transmit(n, Robot[n].channel, robot[n].ram[65])
+        com_transmit(n, robot[n].channel, robot[n].ram[65])
         time_used = 1
     if int_num == 15:
         if robot[n].ram[10] != robot[n].ram[11]:
@@ -2557,8 +2558,8 @@ def call_int(n,int_num,time_used):
             robot_error(n,12,'')
         time_used = 1
     if int_num == 16:
-        if (ram[11] >= robot[n].ram[10]):
-            robot[n].ram[70] = robot[n].ram[11]-ram[10]
+        if (robot[n].ram[11] >= robot[n].ram[10]):
+            robot[n].ram[70] = robot[n].ram[11] - robot[n].ram[10]
         else:
             robot[n].ram[70] = max_queue + 1 - robot[n].ram[10] + robot[n].ram[11]
         time_used = 1
