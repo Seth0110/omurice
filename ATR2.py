@@ -1554,7 +1554,7 @@ def robot_config(n):
     elif robot[n].config.weapon == 1:
         robot[n].shotstrength = 0.8
     else:
-        shotstrength = .5
+        robot[n].shotstrength = .5
         
     if robot[n].config.armor == 5:
         robot[n].damageadj = 0.66
@@ -1600,7 +1600,7 @@ def robot_config(n):
         elif robot[n].config.mines == 1:
             robot[n].mines = 4
         else:
-            mines = 2
+            robot[n].mines = 2
             robot[n].config.mines = 0
             
         robot[n].shields_up = False
@@ -1610,7 +1610,7 @@ def robot_config(n):
             robot[n].config.heatsinks = 0
         
 def reset_software(n):
-    for i in range(0,max_ram):
+    for i in range(0, max_ram):
         robot[n].ram[i] = 0
         robot[n].ram[71] = 768
         robot[n].thd = robot[n].hd
