@@ -1801,6 +1801,7 @@ def parse_param(s):
     global logging_errors
     global insanity
     global num_robots
+    global sound_on
     s1 = ''
     found = False
     s = btrim(ucase(s))
@@ -1934,6 +1935,7 @@ def init():
     global temp_mode
     global delay_per_sec
     global sound_on
+    global reg_num
     if debugging_compiler or compile_by_line or show_code:
         print("!!! Warning !!! Compiler Debugging enabled !!!\n")
     step_mode = 0 # {stepping disabled}
@@ -2043,7 +2045,7 @@ def get_from_ram(n,i,j):
             k = robot[n].ram[i]
         else:
             l = i - max_ram - 1
-            k = code[l >> 2].op[l & 3]
+            k = robot[n].code[l >> 2].op[l & 3]
     return k
 
 def get_val(n,c,o):
@@ -2101,9 +2103,9 @@ def find_label(n,l,m):
     elif m == 4:
         k = l
     else:
-        for i in range(plen,0,-1):
-            j = code[i].op[max_op] & 15
-            if (j == 2) and (code[i].op[0] == l):
+        for i in range(robot[n].plen,0,-1):
+            j = robot[n].code[i].op[max_op] & 15
+            if (j == 2) and (robot[n].code[i].op[0] == l):
                 k = i
     return k
 
@@ -2156,16 +2158,16 @@ def init_missile(xx,yy,xxv,yyv,dir,s,blast,ob):
                     m = m + 0.25
                 missile[k].mspd = missile[k].missile_spd * missile[k].mult
                 if insane_missiles:
-                    missile[k].mspd = 100 + (50 * insanity) * mult
+                    missile[k].mspd = 100 + (50 * insanity) * missile[k].mult
                 if (s >= 0) and (s <= num_robots):
                     robot[s].heat += round(20*m)
                     robot[s].shots_fired += 1
                     robot[s].match_shots += 1
                 a = 1
-                hd = dir
-                max_rad = mis_radius
+                missile[k].hd = dir
+                missile[k].max_rad = mis_radius
                 if debug_info:
-                    print('\v' + ATR2FUNC.zero_pad(game_cycle,5) + ' F ' + s + ': hd=' + '           ')
+                    print('\v' + zero_pad(game_cycle,5) + ' F ' + s + ': hd=' + '           ')
                     ### repeat until keypressed; flushkey; end; DOES NOTHING IN PYTHON     
             
 def damage(n,d,physical):
@@ -2175,21 +2177,21 @@ def damage(n,d,physical):
     if robot[n].config.shield < 3:
         robot[n].shields_up = False
         h = 0
-    if (shields_up) and (not physical):
+    if (robot[n].shields_up) and (not physical):
         dd = robot[n].d
-    if (robot[n].old_shields) and (robot[n].config.shield >= 3):
-        robot[n].d = 0
-        h = 0
-    else:
-        if robot[n].config.shield == 3:
-            robot[n].d = round(dd * 2 / 3.0)
-            if robot[n].d < 1:
-                robot[n].d = 1
-                h = round(dd * 2 / 3.0)
-            if robot[n].config.shield == 4:
+        if (robot[n].old_shields) and (robot[n].config.shield >= 3):
+            robot[n].d = 0
+            h = 0
+        else:
+            if robot[n].config.shield == 3:
+                robot[n].d = round(dd * 2 / 3.0)
+                if robot[n].d < 1:
+                    robot[n].d = 1
+                    h = round(dd * 2 / 3.0)
+            elif robot[n].config.shield == 4:
                 h = int(dd / 2.0)
                 robot[n].d = dd - h
-            if robot[n].config.shield == 5:
+            elif robot[n].config.shield == 5:
                 robot[n].d = round(dd * 1 / 3.0)
                 if robot[n].d < 1:
                     robot[n].d = 1
@@ -2202,33 +2204,33 @@ def damage(n,d,physical):
         print('\r' + zero_pad(game_cycle,5) + ' D ' + n + ': ' + robot[n].armor + '-' + robot[n].d + '=' + str(robot[n].armor - robot[n].d) + '           ')
        # repeat until keypressed; flushkey; end;
     if robot[n].d > 0:
-        robot[n].d = round(robot[n].d * damageadj)
+        robot[n].d = round(robot[n].d * robot[n].damageadj)
     if d < 1:
         d = 1
     robot[n].armor -= robot[n].d
     robot[n].heat -= h
     robot[n].last_damage = 0
-    if armor <= 0:
-        armor = 0
+    if robot[n].armor <= 0:
+        robot[n].armor = 0
         update_armor(n)
-        heat = 500
+        robot[n].heat = 500
         update_heat(n)
-        armor = 0
-        kill_count += 1
-        deaths += 1
+        robot[n].armor = 0
+        robot[n].kill_count += 1
+        robot[n].deaths += 1
         update_lives(n)
     if graphix and timing:
         time_delay(10)
      # draw_robot(n) GRAPHICAL
     robot[n].heat = 0
     update_heat(n)
-    init_missile(x,y,0,0,0,n,blast_circle,False)
+    init_missile(robot[n].x,robot[n].y,0,0,0,n,blast_circle,False)
     if overburn:
         m = 1.3
     else: m = 1
     for i in range(0,num_robots):
         if (i != n) and (robot[i].armor > 0):
-            k = round(distance(x, y, robot[i].x, robot[i].y))
+            k = round(distance(robot[n].x, robot[n].y, robot[i].x, robot[i].y))
             if k < blast_radius:
                 damage(i, round(abs(blast_radius - k) * m), False)
 
@@ -2359,9 +2361,9 @@ def in_port(n,p,time_used):
                 nn = i
             v = k
             if nn in range(0,num_robots):
-                robot[n].ram[5] = robot[robot[n].nn].transponder
+                robot[n].ram[5] = robot[nn].transponder
     elif p == 10:
-        v = random.randint(0,65535) + random.randint(0,2)
+        v = random.randint(0, 65535) + random.randint(0, 2)
     elif p == 16:
         nn = -1
         if show_arcs:
@@ -2369,19 +2371,19 @@ def in_port(n,p,time_used):
         time_used += 40
         l = -1
         k = 65535
-        random[n].nn = -1
+        nn = -1
         for i in range(0, num_robots):
             j = round(distance(robot[n].x, robot[n].y, robot[i].x, robot[i].y))
             if (n != i) and (j < k) and (j < max_sonar) and (robot[i].armor > 0):
                 k = j
                 l = i
-                robot[n].nn = i
+                nn = i
         if l >= 0:
             v = (round(find_angle(robot[n].x, robot[n].y, robot[l].x, robot[l].y) / math.pi*128 + 1024 + random(65) - 32) & 255)
         else:
             v = minint
-        if robot[n].nn in range(0,num_robots):
-            robot[n].ram[5] = robot[robot[n].nn].transponder
+        if nn in range(0,num_robots):
+            robot[n].ram[5] = robot[nn].transponder
     elif p == 17:
         v = robot[n].scanarc
     elif p == 18:
