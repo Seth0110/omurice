@@ -208,7 +208,7 @@ class robot_rec:
     damage_total = 0
     cycles_lived = 0
     error_count = 0
-    config = config_rec() 
+    config = config_rec
     name = ''
     fn = ''
     shields_up = False
@@ -562,19 +562,18 @@ def update_heat(n):
             else:
                 bar(30+(robot[n].heat // 5), 35,129,40)
                 
-def robot_error(n,i,ov):
-    if graph_check(n) & step_mode<=0:
-        robot[n].n
+def robot_error(n, i, ov):
+    if graph_check(n) and step_mode <= 0:
         if stats_mode == 0:
             robot_graph(n)
             setfillstyle(1,0)
             bar(66,56,154,64)
             setcolor(robot_color(n))
-            outtextxy(66,56,addrear(str(i),7+hex(i)))
-            chirp
+            outtextxy(66,56,addrear(cstr(i), 7) + hex(i))
+            chirp()
         if logging_errors:
             log_error(n,i,ov)
-            error_count +=1
+    robot[n].error_count +=1
             
 def update_lives(n):
     if graph_check(n) and stats_mode == 0 and step_mode <= 0:
@@ -1236,14 +1235,16 @@ def parse1(n,p,s):
             microcode = 0
             found = True
         # memory addresses
-        if (not found) and (s[i][1] == '@') and (s[i][2] in range(0,9)):
+        if (not found) and \
+           (s[i][1] == '@') and \
+           s[i][2].isdigit():
             opcode = str2int(rstr(s[i], len(s[i])-1))
             if(opcode < 0) or (opcode > (max_ram + 1) + ((max_code + 1) << 3) - 1):
                 prog_error(3,s[i])
                 microcode = 1
                 found = True
                 
-                if (not found) and (s[i][1] in range(0,9,-1)):
+                if (not found) and s[i][1].isdigit():
                     opcode = str2int(s[i])
                     found = True
                     
@@ -1267,7 +1268,6 @@ def check_plen(plen):
 def _compile(n,filename):
     global numvars
     global numlabels
-    global f
     lock_code = ''
     lock_pos = 0
     locktype = 0
@@ -1329,12 +1329,13 @@ def _compile(n,filename):
             s = ''
         elif k > 0:
             s = s[0:k - 1]
-            s = s[k - 1]
+            s = s[k:]
         s = btrim(s.upper())
         # for i in range(max_op):
         #    pp.append('') # This is already at length max_op?!
         if (len(s) > 0) and (s[0] != ';'):
             if s[0] == '#': # Compiler Directives
+                print('Processor Directive')
                 s1 = btrim(rstr(s,len(s)-1)).upper()
                 msg = btrim(rstr(orig_s, len(orig_s) - 5))
                 k = 0
@@ -1421,6 +1422,7 @@ def _compile(n,filename):
                     else:
                         print('Warning: unknown directive "' + s2 + '"')
             if s[0] == '*': # Inline Pre-Compiled Machine Code
+                print('Inline Machine Code')
                 check_plen(robot[n].plen)
                 for i in range(max_op):
                     pp[i] = ''
@@ -1445,7 +1447,7 @@ def _compile(n,filename):
                 check_plen(robot[n].plen)
                 s1 = rstr(s, len(s) - 1)
                 for i in range(1, len(s1)):
-                    if not s1[i] in range(9):
+                    if not int(s1[i]) in range(10):
                         print(i)
                         prog_error(1, s)
                 robot[n].code[robot[n].plen].op[0] = str2int(s1)
@@ -1454,6 +1456,7 @@ def _compile(n,filename):
                     print_code(n, robot[n].plen)
                 robot[n].plen += 1
             if s[0] == '!': # !labels
+                print('!labels')
                 check_plen(robot[n].plen)
                 s1 = btrim(rstr(s, len(s) - 1))
                 k = 0
@@ -1930,8 +1933,7 @@ def init():
     global delay_per_sec
     global sound_on
     if debugging_compiler or compile_by_line or show_code:
-        print("!!! Warning !!! Compiler Debugging enabled !!!")
-        print() 
+        print("!!! Warning !!! Compiler Debugging enabled !!!\n")
     step_mode = 0 # {stepping disabled}
     logging_errors = False
     stats_mode = 0
@@ -2631,7 +2633,7 @@ def toggle_graphix():
         
 def invalid_microcode(n, ip):
     invalid = False
-    for i in range(0, 3):
+    for i in range(3):
         k = (robot[n].code[ip].op[max_op] >> (i << 2)) & 7 
         if not (k in [0, 1, 2, 4]):
             invalid = True
@@ -2671,18 +2673,23 @@ def execute_instruction(n):
     global step_count
     global step_loop
     global executed
+    
+    # update system variables
     robot[n].ram[0] = robot[n].tspd
     robot[n].ram[1] = robot[n].thd
     robot[n].ram[2] = robot[n].shift
-    robot[n].ram[3] = robot[n].accuracy 
+    robot[n].ram[3] = robot[n].accuracy
+    
     time_used = 1
     inc_ip = True
     loc = 0
-    if (robot[n].ip > robot[n].plen) or (robot[n].ip < 0):
+    if (robot[n].ip > robot[n].plen) or \
+       (robot[n].ip < 0):
         robot[n].ip = 0
     if invalid_microcode(n, robot[n].ip):
         time_used = 1 
         robot_error(n, 16, hex(robot[n].code[robot[n].ip].op[max_op]))
+        
     # the following is graphics-related
     '''elif graphix and (step_mode>0) and (n=0) then  {if stepping enabled...}
         begin
@@ -2743,40 +2750,40 @@ def execute_instruction(n):
         end;
         end;
         end;'''
-    if (not((robot[n].code[robot[n].ip].op[max_op] & 7) in [0, 1])):
+    if ((robot[n].code[robot[n].ip].op[max_op] & 7) in [0, 1]):
         time_used = 0
     else:
-        if get_val(n, robot[n].ip, 0) == 0:
+        if get_val(n, robot[n].ip, 0) == 0: # NOP
             executed += 1
-        elif get_val(n, robot[n].ip, 0) == 1:
+        elif get_val(n, robot[n].ip, 0) == 1: # ADD
             put_val(n, robot[n].ip, 1, get_val(n, robot[n].ip, 1) + get_val(n, robot[n].ip, 2))
             executed += 1
-        elif get_val(n, robot[n].ip, 0) == 2:
+        elif get_val(n, robot[n].ip, 0) == 2: # SUB
             put_val(n, robot[n].ip, 1, get_val(n, robot[n].ip, 1) - get_val(n, robot[n].ip, 2))
             executed += 1
-        elif get_val(n, robot[n].ip, 0) == 3:
+        elif get_val(n, robot[n].ip, 0) == 3: # OR
             put_val(n, robot[n].ip, 1, get_val(n, robot[n].ip, 1) | get_val(n, robot[n].ip, 2))
             executed += 1
-        elif get_val(n, robot[n].ip, 0) == 4:
+        elif get_val(n, robot[n].ip, 0) == 4: # AND
             put_val(n, robot[n].ip, 1, get_val(n, robot[n].ip, 1) & get_val(n, robot[n].ip, 2))
             executed += 1
-        elif get_val(n, robot[n].ip, 0) == 5:
+        elif get_val(n, robot[n].ip, 0) == 5: # XOR
             put_val(n, robot[n].ip, 1, get_val(n, robot[n].ip, 1) ^ get_val(n, robot[n].ip, 2))
             executed += 1
-        elif get_val(n, robot[n].ip, 0) == 6:
+        elif get_val(n, robot[n].ip, 0) == 6: # NOT
             put_val(n, robot[n].ip, 1, not(get_val(n, robot[n].ip, 1)))
             executed += 1
-        elif get_val(n, robot[n].ip, 0) == 7:
+        elif get_val(n, robot[n].ip, 0) == 7: # MPY
             put_val(n, robot[n].ip, 1, get_val(n, robot[n].ip, 1) * get_val(n, robot[n].ip, 2))
             time_used = 10
             executed += 1
-        elif get_val(n, robot[n].ip, 0) == 8:
+        elif get_val(n, robot[n].ip, 0) == 8: # DIV
             j = get_val(n, robot[n].ip, 2)
             if j != 0:
                 put_val(n, robot[n].ip, 1, get_val(n, robot[n].ip, 1) // j)
             time_used = 10
             executed += 1
-        elif get_val(n, robot[n].ip, 0) == 9:
+        elif get_val(n, robot[n].ip, 0) == 9: # MOD
             j = get_val(n, robot[n].ip, 2)
             if j != 0:
                 put_val(n, robot[n].ip, 1, get_val(n, robot[n].ip, 1) % j)
@@ -2784,12 +2791,12 @@ def execute_instruction(n):
                 robot_error(n, 8, '')
             time_used = 10
             executed += 1
-        elif get_val(n, robot[n].ip, 0) == 10:
+        elif get_val(n, robot[n].ip, 0) == 10: # RET
             robot[n].ip = pop(n)
             if (robot[n].ip < 0) or (robot[n].ip > robot[n].plen):
                 robot_error(n, 7, cstr(robot[n].ip))
             executed += 1
-        elif get_val(n, robot[n].ip, 0) == 11:
+        elif get_val(n, robot[n].ip, 0) == 11: # GSB
             loc = find_label(n, get_val(n, robot[n].ip, 1), code[robot[n].ip].op[max_op] >> (1 * 4)) # local variable
             if loc >= 0:
                 push(n, robot[n].ip)
@@ -2798,44 +2805,44 @@ def execute_instruction(n):
             else:
                 robot_error(n, 2, cstr(get_val(n, robot[n].ip, 1)))
             executed += 1
-        elif get_val(n, robot[n].ip, 0) == 12:
+        elif get_val(n, robot[n].ip, 0) == 12: # JMP
             jump(n, 1, inc_ip)
             executed += 1
-        elif get_val(n, robot[n].ip, 0) == 13:
+        elif get_val(n, robot[n].ip, 0) == 13: # JLS, JB
             if robot[n].ram[64] & 2 > 0:
                 jump(n, 1, inc_ip)
             time_used = 0
             executed += 1
-        elif get_val(n, robot[n].ip, 0) == 14:
+        elif get_val(n, robot[n].ip, 0) == 14: # JGR, JA
             if robot[n].ram[64] & 4 > 0:
                 jump(n, 1, inc_ip)
             time_used = 0
             executed += 1
-        elif get_val(n, robot[n].ip, 0) == 15:
+        elif get_val(n, robot[n].ip, 0) == 15: # JNE
             if robot[n].ram[64] & 1 == 0:
                 jump(n, 1, inc_ip)
             time_used = 0
             executed += 1
-        elif get_val(n, robot[n].ip, 0) == 16:
+        elif get_val(n, robot[n].ip, 0) == 16: # JEQ, JE
             if robot[n].ram[64] & 1 > 0:
                 jump(n, 1, inc_ip)
             time_used = 0
             executed += 1
-        elif get_val(n, robot[n].ip, 0) == 17:
+        elif get_val(n, robot[n].ip, 0) == 17: # SWAP, XCHG
             robot[n].ram[4] = get_val(n, robot[n].ip, 1)
             put_val(n, robot[n].ip, 1, get_val(n, robot[n].ip, 2))
             put_val(n, robot[n].ip, 2, robot[n].ram[4])
             time_used = 3
             executed += 1
-        elif get_val(n, robot[n].ip, 0) == 18:
+        elif get_val(n, robot[n].ip, 0) == 18: # DO
             robot[n].ram[67] = get_val(n, robot[n].ip, 1)
             executed += 1
-        elif get_val(n, robot[n].ip, 0) == 19:
+        elif get_val(n, robot[n].ip, 0) == 19: # LOOP
             robot[n].ram[67] -= 1
             if robot[n].ram[67] > 0:
                 jump(n, 1, inc_ip)
             executed += 1
-        elif get_val(n, robot[n].ip, 0) == 20:
+        elif get_val(n, robot[n].ip, 0) == 20: # CMP
             k = get_val(n, robot[n].ip, 1) - get_val(n, robot[n].ip, 2)
             robot[n].ram[64] = robot[n].ram[64] & 0xFFF0
             if k == 0:
@@ -2847,7 +2854,7 @@ def execute_instruction(n):
             if (get_val(n, robot[n].ip, 2) == 0) and (k == 0):
                 robot[n].ram[64] = robot[n].ram[64] | 8
             executed += 1
-        elif get_val(n, robot[n].ip, 0) == 21:
+        elif get_val(n, robot[n].ip, 0) == 21: # TEST
             k = get_val(n, robot[n].ip, 1) & get_val(n, robot[n].ip, 2)
             robot[n].ram[64] = robot[n].ram[64] & 0xFFF0
             if k == get_val(n, robot[n].ip, 2):
@@ -2855,14 +2862,14 @@ def execute_instruction(n):
             if k == 0:
                 robot[n].ram[64] = robot[n].ram[64] | 8
             executed += 1
-        elif get_val(n, robot[n].ip, 0) == 22:
+        elif get_val(n, robot[n].ip, 0) == 22: # MOV, SET
             put_val(n, robot[n].ip, 1, get_val(n, robot[n].ip, 2))
             executed += 1
-        elif get_val(n, robot[n].ip, 0) == 23:
+        elif get_val(n, robot[n].ip, 0) == 23: # LOC
             put_val(n, robot[n].ip, 1, robot[n].code[robot[n].ip].op[2])
             time_used = 2
             executed += 1
-        elif get_val(n, robot[n].ip, 0) == 24:
+        elif get_val(n, robot[n].ip, 0) == 24: # GET
             k = get_val(n, robot[n].ip, 2)
             if (k >= 0) and (k <= max_ram):
                 put_val(n, robot[n].ip, 1, robot[n].ram[k])
@@ -2873,7 +2880,7 @@ def execute_instruction(n):
                 robot_error(n, 4, cstr(k))
             time_used = 2
             executed += 1
-        elif get_val(n, robot[n].ip, 0) == 25:
+        elif get_val(n, robot[n].ip, 0) == 25: # PUT
             k = get_val(n, robot[n].ip, 2)
             if (k >= 0) and (k <= max_ram):
                 robot[n].ram[k] = get_val(n, robot[n].ip, 1)
@@ -2881,78 +2888,78 @@ def execute_instruction(n):
                 robot_error(n, 4, cstr(k))
             time_used = 2
             executed += 1
-        elif get_val(n, robot[n].ip, 0) == 26:
+        elif get_val(n, robot[n].ip, 0) == 26: # INT
             call_int(n, get_val(n, robot[n].ip, 1), time_used)
             executed += 1
-        elif get_val(n, robot[n].ip, 0) == 27:
+        elif get_val(n, robot[n].ip, 0) == 27: # IPO, IN
             time_used = 4
             put_val(n, robot[n].ip, 2, in_port(n, get_val(n, robot[n].ip, 1), time_used))
             executed += 1
-        elif get_val(n, robot[n].ip, 0) == 28:
+        elif get_val(n, robot[n].ip, 0) == 28: # OPO, OUT
             time_used = 4
             out_port(n, get_val(n, robot[n].ip, 1), get_val(n, robot[n].ip, 2), time_used)
             executed += 1
-        elif get_val(n, robot[n].ip, 0) == 29:
+        elif get_val(n, robot[n].ip, 0) == 29: # DEL, DELAY
             time_used = get_val(n, robot[n].ip, 1)
             executed += 1
-        elif get_val(n, robot[n].ip, 0) == 30:
+        elif get_val(n, robot[n].ip, 0) == 30: # PUSH
             push(n, get_val(n, robot[n].ip, 1))
             executed += 1
-        elif get_val(n, robot[n].ip, 0) == 31:
+        elif get_val(n, robot[n].ip, 0) == 31: # POP
             put_val(n, robot[n].ip, 1, pop(n))
             executed += 1
-        elif get_val(n, robot[n].ip, 0) == 32:
+        elif get_val(n, robot[n].ip, 0) == 32: # ERR
             robot_error(n, get_val(n, robot[n].ip, 1), '')
             time_used = 0
             executed += 1
-        elif get_val(n, robot[n].ip, 0) == 33:
+        elif get_val(n, robot[n].ip, 0) == 33: # INC
             put_val(n, robot[n].ip, 1, get_val(n, robot[n].ip, 1) + 1)
             executed += 1
-        elif get_val(n, robot[n].ip, 0) == 34:
+        elif get_val(n, robot[n].ip, 0) == 34: # DEC
             put_val(n, robot[n].ip, 1, get_val(n, robot[n].ip, 1) - 1)
             executed += 1
-        elif get_val(n, robot[n].ip, 0) == 35:
+        elif get_val(n, robot[n].ip, 0) == 35: # SHL
             put_val(n, robot[n].ip, 1, get_val(n, robot[n].ip, 1) << get_val(n, robot[n].ip, 2))
             executed += 1
-        elif get_val(n, robot[n].ip, 0) == 36:
+        elif get_val(n, robot[n].ip, 0) == 36: # SHR
             put_val(n, robot[n].ip, 1, get_val(n, robot[n].ip, 1) >> get_val(n, robot[n].ip, 2))
             executed += 1
-        elif get_val(n, robot[n].ip, 0) == 37:
+        elif get_val(n, robot[n].ip, 0) == 37: # ROL
             put_val(n, robot[n].ip, 1, rol(get_val(n, robot[n].ip, 1), get_val(n, robot[n].ip, 2)))
             executed += 1
-        elif get_val(n, robot[n].ip, 0) == 38:
+        elif get_val(n, robot[n].ip, 0) == 38: # ROR
             put_val(n, robot[n].ip, 1, ror(get_val(n, robot[n].ip, 1), get_val(n, robot[n].ip, 2)))
             executed += 1
-        elif get_val(n, robot[n].ip, 0) == 39:
+        elif get_val(n, robot[n].ip, 0) == 39: # JZ
             time_used = 0
             if robot[n].ram[64] & 8 > 0:
                 jump(n, 1, inc_ip)
             executed += 1
-        elif get_val(n, robot[n].ip, 0) == 40:
+        elif get_val(n, robot[n].ip, 0) == 40: # JNZ
             time_used = 0
             if robot[n].ram[64] & 8 == 0:
                 jump(n, 1, inc_ip)
             executed += 1
-        elif get_val(n, robot[n].ip, 0) == 41:
+        elif get_val(n, robot[n].ip, 0) == 41: # JAE, JGE
             if (robot[n].ram[64] & 1 > 0) or (robot[n].ram[64] & 4 > 0):
                 jump(n, 1, inc_ip)
             time_used = 0
             executed += 1
-        elif get_val(n, robot[n].ip, 0) == 42:
+        elif get_val(n, robot[n].ip, 0) == 42: # JBE, JLE
             if (robot[n].ram[64] & 1 > 0) or (robot[n].ram[64] & 2 > 0):
                 jump(n, 1, inc_ip)
             time_used = 0
             executed += 1
-        elif get_val(n, robot[n].ip, 0) == 43:
+        elif get_val(n, robot[n].ip, 0) == 43: # SA
             put_val(n, robot[n].ip, 1, sal(get_val(n, robot[n].ip, 1), get_val(n, robot[n].ip, 2)))
             executed += 1
-        elif get_val(n, robot[n].ip, 0) == 44:
+        elif get_val(n, robot[n].ip, 0) == 44: # SAR
             put_val(n, robot[n].ip, 1, sar(get_val(n, robot[n].ip, 1), get_val(n, robot[n].ip, 2)))
             executed += 1
-        elif get_val(n, robot[n].ip, 0) == 45:
+        elif get_val(n, robot[n].ip, 0) == 45: # NEG
             put_val(n, robot[n].ip, 1, 0 - get_val(n, robot[n].ip, 1))
             executed += 1
-        elif get_val(n, robot[n].ip, 0) == 46:
+        elif get_val(n, robot[n].ip, 0) == 46: # JTL
             loc = get_val(n, robot[n].ip, 1)
             if (loc >= 0) and (loc <= robot[n].plen):
                 inc_ip = False
@@ -2965,7 +2972,7 @@ def execute_instruction(n):
     if inc_ip:
         robot[n].ip += 1
     if graphix and (n == 0) and (step_mode > 0):
-        update_debug_window
+        update_debug_window()
 
 def do_robot(n):
     global executed
@@ -2973,12 +2980,18 @@ def do_robot(n):
         return
     if robot[n].armor <= 0:
         return
+
+    # Time slice
     robot[n].time_left = time_slice
-    if (robot[n].time_left > robot[n].robot_time_limit) and (robot[n].robot_time_limit > 0):
+    if (robot[n].time_left > robot[n].robot_time_limit) and \
+       (robot[n].robot_time_limit > 0):
         robot[n].time_left = robot[n].robot_time_limit
-    if (robot[n].time_left > robot[n].max_time) and (robot[n].max_time > 0):
+    if (robot[n].time_left > robot[n].max_time) and \
+       (robot[n].max_time > 0):
         robot[n].time_left = robot[n].max_time
     executed = 0
+
+    # Execute timeslice
     while (robot[n].time_left > 0) and (not robot[n].cooling) and (executed < 20 + time_slice) and (robot[n].armor > 0):
         if robot[n].delay_left < 0:
             robot[n].delay_left = 0
@@ -2992,6 +3005,8 @@ def do_robot(n):
             robot[n].shields_up = False
         if robot[n].heat >= 500:
             damage(n, 1000, True)
+
+    # Fix up variables
     robot[n].thd = (robot[n].thd + 1024) & 255
     robot[n].hd = (robot[n].hd + 1024) & 255
     robot[n].shift = (robot[n].shift + 1024) & 255
