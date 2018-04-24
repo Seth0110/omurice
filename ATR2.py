@@ -677,12 +677,11 @@ def prog_error(n, ss):
 def print_code(n, p):
     i = 0
     print(hex(p)+': ')
-    for i in range(0,max_op):
-        print(zero_pad(robot[n].code[p].op[i],5), ' ')
+    for i in range(max_op):
+        sys.stdout.write(str(zero_pad(robot[n].code[p].op[i],5)) + ' ')
     sys.stdout.write('=  ')
-    for i in range(0,max_op):
-        print(hex(robot[n].code[p].op[i]),'h ')
-    print('\n')
+    for i in range(max_op):
+        sys.stdout.write(str(hex(robot[n].code[p].op[i])) + 'h ')
     print('\n')
 
 def parse1(n, p, s):
@@ -1268,6 +1267,7 @@ def check_plen(plen):
 def _compile(n, filename):
     global numvars
     global numlabels
+    lc = ''
     lock_code = ''
     lock_pos = 0
     locktype = 0
@@ -1476,24 +1476,27 @@ def _compile(n, filename):
                         k = numlabels
                     labelname[k] = s1
                     labelnum[k] = robot[n].plen
-                else:
-                    check_plen(robot[n].plen)
-                    k = 0
-                for i in range(len(s) - 1, 0, -1):
+            else: # Instructions/Numbers
+                check_plen(robot[n].plen)
+                # Parse instructions
+                # Remove comments
+                k = 0
+                for i in range(len(s)-1, 0, -1):
                     if s[i] == ';':
                         k = i
                 if k >= 0:
                     s = lstr(s, k - 1)
+                # Setup variables for parsing
                 k = 0
                 for j in range(max_op):
                     pp[j] = ''
                 for j in range(len(s)):
                     c = s[j]
                     if not c in [' ', chr(8), chr(9), chr(10), ','] and k <= max_op:
-                            pp[k] = pp[k] + c
+                        pp[k] = pp[k] + c
                     elif not lc in [' ', chr(8), chr(9), chr(10), ',']:
                         k = k + 1
-                    lc = c
+                lc = c
                 parse1(n, robot[n].plen, pp)
                 robot[n].plen += 1
     f.close()
@@ -3519,9 +3522,9 @@ def bout():
             if ((game_cycle % k) == 0) or (game_cycle == 10):
                 update_cycle_window()
             else:
-                if (update_timer != mem[0] >> 1): # Should instead be: if (update_timer != mem[0:$46C] >> 1):
+                if (update_timer != mem[0:0x46C] >> 1):
                     update_cycle_window()
-            update_timer = mem[0] >> 1 # Should instead be: update_timer = mem[0:$46C] >> 1
+            update_timer = mem[0:0x46C] >> 1
             
     update_cycle_window()
     # Commented out in the original: {if (not graphix) then print;}
