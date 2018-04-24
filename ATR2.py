@@ -688,7 +688,7 @@ def print_code(n, p):
 def parse1(n, p, s):
     global numlabels
     ss = ''
-    for i in range(max_op - 1):
+    for i in range(max_op-1):
         k = 0
         found = False
         opcode = 0
@@ -713,14 +713,14 @@ def parse1(n, p, s):
             ss = s[i]
             ss = btrim(rstr(ss,len(ss)-1))
             if numlabels > 0:
-                for i in range(1,numlabels):
+                for j in range(1,numlabels):
                     if ss == labelname[i]:
                         found = True
-                        if labelnum[i] > 0:
-                            opcode = labelnum[i]
+                        if labelnum[j] > 0:
+                            opcode = labelnum[j]
                             microcode = 4    # resovled !label
                         else:
-                            opcode = i  
+                            opcode = j  
                             microcode = 3    # unresovled !label
         if not found:
             numlabels +=1
@@ -742,495 +742,495 @@ def parse1(n, p, s):
         if s[i] == 'NOP':
             opcode = 000
             found = True
-        if s[i] == 'ADD':
+        elif s[i] == 'ADD':
             opcode = 1
             found = True
-        if s[i] == 'SUB':
+        elif s[i] == 'SUB':
             opcode = 2
             found = True
-        if s[i] == 'OR':
+        elif s[i] == 'OR':
             opcode = 3
             found = True
-        if s[i] == 'AND':
+        elif s[i] == 'AND':
             opcode = 4
             found = True
-        if s[i] == 'XOR':
+        elif s[i] == 'XOR':
             opcode = 5
             found = True
-        if s[i] == 'NOT':
+        elif s[i] == 'NOT':
             opcode = 6
             found = True
-        if s[i] == 'MPY':
+        elif s[i] == 'MPY':
             opcode = 7
             found = True
-        if s[i] == 'DIV':
+        elif s[i] == 'DIV':
             opcode == 7
             found = True
-        if s[i] == 'MOD':
+        elif s[i] == 'MOD':
             opcode= 9
             found= True
-        if s[i] == 'RET':
+        elif s[i] == 'RET':
             opcode = 10
             found = True
-        if s[i] == 'RETURN':
+        elif s[i] == 'RETURN':
             opcode = 10
             found = True
-        if s[i] == 'GSB':
+        elif s[i] == 'GSB':
             opcode = 11
             found = True
-        if s[i] == 'GOSUB':
+        elif s[i] == 'GOSUB':
             opcode = 11
             found = True
-        if s[i] == 'CALL':
+        elif s[i] == 'CALL':
             opcode = 11
             found = True
-        if s[i] == 'JMP':
+        elif s[i] == 'JMP':
             opcode = 12
             found = True
-        if s[i] == 'JUMP':
+        elif s[i] == 'JUMP':
             opcode = 12
             found = True
-        if s[i] == 'GOTO':
+        elif s[i] == 'GOTO':
             opcode = 12
             found = True
-        if s[i] == 'JLS':
+        elif s[i] == 'JLS':
             opcode = 13
             found = True
-        if s[i] == 'JB':
+        elif s[i] == 'JB':
             opcode = 13
             found = True
-        if s[i] == 'JGR':
+        elif s[i] == 'JGR':
             opcode = 14
             found = True
-        if s[i] == 'JA':
+        elif s[i] == 'JA':
             opcode = 14
             found = True
-        if s[i] == 'JNE':
+        elif s[i] == 'JNE':
             opcode = 15
             found = True
-        if s[i] == 'JEQ':
+        elif s[i] == 'JEQ':
             opcode = 16
             found = True
-        if s[i] == 'JE':
+        elif s[i] == 'JE':
             opcode = 16
             found = True
-        if s[i] == 'XCHG':
+        elif s[i] == 'XCHG':
             opcode = 17
             found = True
-        if s[i] == 'SWAP':
+        elif s[i] == 'SWAP':
             opcode = 17
             found = True
-        if s[i] == 'DO':
+        elif s[i] == 'DO':
             opcode = 18
             found= True
-        if s[i] == 'LOOP':
+        elif s[i] == 'LOOP':
             opcode = 19
             found = True
-        if s[i] == 'CMP':
+        elif s[i] == 'CMP':
             opcode = 20
             found = True
-        if s[i] == 'TEST':
+        elif s[i] == 'TEST':
             opcode = 21
             found = True
-        if s[i] == 'SET':
+        elif s[i] == 'SET':
             opcode = 22
             found = True
-        if s[i] == 'MOV':
+        elif s[i] == 'MOV':
             opcode = 22
             found = True
-        if s[i] == 'LOC':
+        elif s[i] == 'LOC':
             opcode = 23
             found = True
-        if s[i] == 'ADDR':
+        elif s[i] == 'ADDR':
             opcode = 23
             found = True
-        if s[i] == 'GET':
+        elif s[i] == 'GET':
             opcode = 24
             found= True
-        if s[i] == 'PUT':
+        elif s[i] == 'PUT':
             opcode = 25
             found = True
-        if s[i] == 'INT':
+        elif s[i] == 'INT':
             opcode = 26
             found = True
-        if s[i] == 'IPO':
+        elif s[i] == 'IPO':
             opcode = 27
             found = True
-        if s[i] == 'IN':
+        elif s[i] == 'IN':
             opcode = 27
             found = True
-        if s[i] == 'OPO':
+        elif s[i] == 'OPO':
             opcode = 28
             found = True
-        if s[i] == 'OUT':
+        elif s[i] == 'OUT':
             opcode = 28
             found = True
-        if s[i] == 'DEL':
+        elif s[i] == 'DEL':
             opcode = 29
             found = True
-        if s[i] == 'DELAY':
+        elif s[i] == 'DELAY':
             opcode = 29
             found = True
-        if s[i] == 'PUSH':
+        elif s[i] == 'PUSH':
             opcode = 30
             found = True
-        if s[i] == 'POP':
+        elif s[i] == 'POP':
             opcode = 31
             found = True
-        if s[i] == 'ERR':
+        elif s[i] == 'ERR':
             opcode = 32
             found = True
-        if s[i] == 'ERROR':
+        elif s[i] == 'ERROR':
             opcode = 32
             found = True
-        if s[i] == 'INC':
+        elif s[i] == 'INC':
             opcode = 33
             found = True
-        if s[i] == 'DEC':
+        elif s[i] == 'DEC':
             opcode = 34
             found = True
-        if s[i] == 'SHL':
+        elif s[i] == 'SHL':
             opcode = 35
             found = True
-        if s[i] == 'SHR':
+        elif s[i] == 'SHR':
             opcode == 36
             found = True
-        if s[i] == 'ROL':
+        elif s[i] == 'ROL':
             opcode = 37
             found = True
-        if s[i] == 'ROR':
+        elif s[i] == 'ROR':
             opcode = 37
             found = True
-        if s[i] == 'JZ':
+        elif s[i] == 'JZ':
             opcode = 39
             found = True
-        if s[i] == 'JNZ':
+        elif s[i] == 'JNZ':
             opcode = 40
             found = True
-        if s[i] == 'JAE':
+        elif s[i] == 'JAE':
             opcode = 41
             found = True
-        if s[i] == 'JGE':
+        elif s[i] == 'JGE':
             opcode = 41
             found = True
-        if s[i] == 'JLE':
+        elif s[i] == 'JLE':
             opcode = 42
             found = True
-        if s[i] == 'JBE':
+        elif s[i] == 'JBE':
             opcode = 42
             found = True
-        if s[i] == 'SAL':
+        elif s[i] == 'SAL':
             opcode = 43
             found = True
-        if s[i] == 'SAR':
+        elif s[i] == 'SAR':
             opcode = 44
             found = True
-        if s[i] == 'NEG':
+        elif s[i] == 'NEG':
             opcode = 45
             found = True
-        if s[i] == 'JTL':
+        elif s[i] == 'JTL':
             opcode = 46
             found = True        
         # registers 
-        if s[i] == 'COLCNT':
+        elif s[i] == 'COLCNT':
             opcode = 8
             microcode = 1
             found = True
-        if s[i] == 'METERS':
+        elif s[i] == 'METERS':
             opcode = 9
             microcode = 1
             found = True
-        if s[i] == 'COMBASE':
+        elif s[i] == 'COMBASE':
             opcode = 10
             microcode = 1
             found = True
-        if s[i] == 'COMEND':
+        elif s[i] == 'COMEND':
             opcode = 11
             microcode = 1
             found = True
-        if s[i] == 'FLAGS':
+        elif s[i] == 'FLAGS':
             opcode = 64
             microcode = 1
-        if s[i] == 'AX':
+        elif s[i] == 'AX':
             opcode = 64
             microcode = 1
             found = True
-        if s[i] == 'BX':
+        elif s[i] == 'BX':
             opcode = 66
             microcode = 1
             found = True
-        if s[i] == 'CX':
+        elif s[i] == 'CX':
             opcode = 67
             microcode = 1
             found = True
-        if s[i] == 'DX':
+        elif s[i] == 'DX':
             opcode = 68
             microcode = 1
             found = True
-        if s[i] == 'EX':
+        elif s[i] == 'EX':
             opcode = 69
             microcode = 1
             found = True
-        if s[i] == 'FX':
+        elif s[i] == 'FX':
             opcode = 70
             microcode = 1
             found = True
-        if s[i] == 'SP':
+        elif s[i] == 'SP':
             opcode = 71
             microcode = 1
             found = True
         # constants
-        if s[i] == 'MAXINT':
+        elif s[i] == 'MAXINT':
             opcode = 32767
             microcode = 0
             found = True
-        if s[i] == 'MININT':
+        elif s[i] == 'MININT':
             opcode = 32768
             microcode = 0
             found = True
         
-        if s[i] == 'P_SPEDOMETER':
+        elif s[i] == 'P_SPEDOMETER':
             opcode = 1
             microcode = 0
             found = True
-        if s[i] == 'P_HEAT':
+        elif s[i] == 'P_HEAT':
             opcode = 2
             microcode = 0
             found = True
             
-        if s[i] == 'P_COMPASS':
+        elif s[i] == 'P_COMPASS':
             opcode = 3 
             microcode = 0
             found = True
         
-        if s[i] == 'P_TANGLE':
+        elif s[i] == 'P_TANGLE':
             opcode = 4
             microcode = 0
             found = True
         
-        if s[i] == 'P_TURRENT_OFS':
+        elif s[i] == 'P_TURRENT_OFS':
             opcode = 4
             microcode = 0
             found = True
-        if s[i] == 'P_THEADING':
+        elif s[i] == 'P_THEADING':
             opcode = 5
             microcode = 0
             found = True
-        if s[i] == 'P_TURRENT_ABS':
+        elif s[i] == 'P_TURRENT_ABS':
             opcode = 5
             microcode = 0
             found = True
         
-        if s[i] == 'P_ARMOR':
+        elif s[i] == 'P_ARMOR':
             opcode = 6
             microcode = 0
             found = True
         
-        if s[i] == 'P_DAMAGE':
+        elif s[i] == 'P_DAMAGE':
             opcode = 6
             microcode = 0
             found = True
-        if s[i] == 'P_SCAN':
+        elif s[i] == 'P_SCAN':
             opcode = 7
             microcode = 0
             found = True
-        if s[i] == 'P_ACCURACY':
+        elif s[i] == 'P_ACCURACY':
             opcode = 8
             microcode = 0
             found = True
-        if s[i] == 'P_RADAR':
+        elif s[i] == 'P_RADAR':
             opcode = 9
             microcode = 0
             found = True
-        if s[i] == 'P_RANDOM':
+        elif s[i] == 'P_RANDOM':
             opcode = 10
             microcode = 0
             found = True
-        if s[i] == 'P_RAND':
+        elif s[i] == 'P_RAND':
             opcode = 10
             microcode = 0
             found = True
-        if s[i] == 'P_THROTTLE':
+        elif s[i] == 'P_THROTTLE':
             opcode = 11
             microcode = 0
             found = True
         
-        if s[i] == 'P_TROTATE':
+        elif s[i] == 'P_TROTATE':
             opcode = 12
             microcode = 0
             found = True
-        if s[i] == 'P_OFS_TURRENT':
+        elif s[i] == 'P_OFS_TURRENT':
             opcode = 12
             microcode = 0
             found = True
-        if s[i] == 'P_TAIM':
+        elif s[i] == 'P_TAIM':
             opcode = 13
             microcode = 0
             found = True
-        if s[i] == 'P_ABS_TURRENT':
+        elif s[i] == 'P_ABS_TURRENT':
             opcode = 13
             microcode = 0
             found = True
-        if s[i] == 'P_STEERLING':
+        elif s[i] == 'P_STEERLING':
             opcode = 14
             microcode = 0
             found = True
-        if s[i] == 'P_WEAP':
+        elif s[i] == 'P_WEAP':
             opcode = 15
             microcode = 0
             found = True
-        if s[i] == 'P_WEAPON':
+        elif s[i] == 'P_WEAPON':
             opcode = 15
             microcode = 0
             found = True
-        if s[i] == 'P_FIRE':
+        elif s[i] == 'P_FIRE':
             opcode = 15
             microcode = 0
             found = True
-        if s[i] == 'P_SONAR':
+        elif s[i] == 'P_SONAR':
             opcode = 16
             microcode = 0
             found = True
-        if s[i] == 'P_ARC':
+        elif s[i] == 'P_ARC':
             opcode = 17
             microcode = 0
             found = True
-        if s[i] == 'P_SCANARC':
+        elif s[i] == 'P_SCANARC':
             opcode = 17
             microcode = 0
             found = True
-        if s[i] == 'P_OVERBURN':
+        elif s[i] == 'P_OVERBURN':
             opcode = 18
             microcode = 0
             found = True
-        if s[i] == 'P_TRANSPONDER':
+        elif s[i] == 'P_TRANSPONDER':
             opcode = 19
             microcode = 0
             found = True
-        if s[i] == 'P_SHUTDOWN':
+        elif s[i] == 'P_SHUTDOWN':
             opcode = 20
             microcode = 0
             found = True
-        if s[i] == 'P_CHANNEL':
+        elif s[i] == 'P_CHANNEL':
             opcode = 21
             microcode = 0
             found = True
-        if s[i] == 'P_MINELAYER':
+        elif s[i] == 'P_MINELAYER':
             opcode = 22
             microcode = 0
             found = True
-        if s[i] == 'P_MINETRIGGER':
+        elif s[i] == 'P_MINETRIGGER':
             opcode = 23
             microcode = 0
             found = True
-        if s[i] == 'P_SHIELD':
+        elif s[i] == 'P_SHIELD':
             opcode = 24
             microcode = 0
             found = True
-        if s[i] == 'P_SHIELDS':
+        elif s[i] == 'P_SHIELDS':
             opcode = 24
             microcode = 0
             found = True
-        if s[i] == 'I_DESTRUCT':
+        elif s[i] == 'I_DESTRUCT':
             opcode = 0
             microcode = 0
             found = True
-        if s[i] == 'I_RESET':
+        elif s[i] == 'I_RESET':
             opcode = 1
             microcode = 0
             found = True
-        if s[i] == 'I_LOCATE':
+        elif s[i] == 'I_LOCATE':
             opcode = 2
             microcode = 0
             found = True
-        if s[i] == 'I_KEEPSHIFT':
+        elif s[i] == 'I_KEEPSHELIFT':
             opcode = 3
             microcode = 0
             found = True
-        if s[i] == 'I_OVERBURN':
+        elif s[i] == 'I_OVERBURN':
             opcode = 4
             microcode = 0
             found = True
-        if s[i] == 'I_ID':
+        elif s[i] == 'I_ID':
             opcode = 5
             microcode = 0
             found = True
-        if s[i] == 'I_TIMER':
+        elif s[i] == 'I_TIMER':
             opcode = 6
             microcode = 0
             found = True
-        if s[i] == 'I_ANGLE':
+        elif s[i] == 'I_ANGLE':
             opcode = 7
             microcode = 0
             found = True
-        if s[i] == 'I_TID':
+        elif s[i] == 'I_TID':
             opcode = 8
             microcode = 0
             found = True
-        if s[i] == 'I_TARGETID':
+        elif s[i] == 'I_TARGETID':
             opcode = 8
             microcode = 0
             found = True
-        if s[i] == 'I_TINFO':
+        elif s[i] == 'I_TINFO':
             opcode = 9
             microcode = 0
             found = True
-        if s[i] == 'I_TARGETINFO':
+        elif s[i] == 'I_TARGETINFO':
             opcode = 9
             microcode = 0
             found = True
         
-        if s[i] == 'I_GINFO':
+        elif s[i] == 'I_GINFO':
             opcode = 10
             microcode = 0
             found = True
-        if s[i] == 'I_GAMEINFO':
+        elif s[i] == 'I_GAMEINFO':
             opcode = 10
             microcode = 0
             found = True
-        if s[i] == 'I_RINFO':
+        elif s[i] == 'I_RINFO':
             opcode = 11
             microcode = 0
             found = True
-        if s[i] == 'I_ROBOTINFO':
+        elif s[i] == 'I_ROBOTINFO':
             opcode = 11
             microcode = 0
             found = True
-        if s[i] == 'I_COLLISIONS':
+        elif s[i] == 'I_COLLISIONS':
             opcode = 13
             microcode = 0
             found = True
-        if s[i] == 'I_RESETCOLCNT':
+        elif s[i] == 'I_RESETCOLCNT':
             opcode = 13
             microcode = 0
             found = True
         
-        if s[i] == 'I_TRANSMIT':
+        elif s[i] == 'I_TRANSMIT':
             opcode = 14
             microcode = 0
             found = True
         
-        if s[i] == 'I_RECEIVE':
+        elif s[i] == 'I_RECEIVE':
             opcode = 15
             microcode = 0
             found = True
-        if s[i] == 'I_DATAREADY':
+        elif s[i] == 'I_DATAREADY':
             opcode = 16
             microcode = 0
             found = True
-        if s[i] == 'I_CLEARCOM':
+        elif s[i] == 'I_CLEARCOM':
             opcode = 17
             microcode = 0
             found = True
-        if s[i] == 'I_KILLS':
+        elif s[i] == 'I_KILLS':
             opcode = 18
             microcode = 0
             found = True
-        if s[i] == 'I_DEATHS':
+        elif s[i] == 'I_DEATHS':
             opcode = 18
             microcode = 0
             found = True
-        if s[i] == 'I_CLEARMETERS':
+        elif s[i] == 'I_CLEARMETERS':
             opcode = 19
             microcode = 0
             found = True
@@ -1335,7 +1335,6 @@ def _compile(n, filename):
         #    pp.append('') # This is already at length max_op?!
         if (len(s) > 0) and (s[0] != ';'):
             if s[0] == '#': # Compiler Directives
-                print('Processor Directive')
                 s1 = btrim(rstr(s,len(s)-1)).upper()
                 msg = btrim(rstr(orig_s, len(orig_s) - 5))
                 k = 0
@@ -1456,7 +1455,6 @@ def _compile(n, filename):
                     print_code(n, robot[n].plen)
                 robot[n].plen += 1
             if s[0] == '!': # !labels
-                print('!labels')
                 check_plen(robot[n].plen)
                 s1 = btrim(rstr(s, len(s) - 1))
                 k = 0
@@ -3024,7 +3022,7 @@ def do_robot(n):
         robot[n].last_damage += 1
     if robot[n].last_hit < maxint:
         robot[n].last_hit += 1 
-    if robot[n].shields_up and (game_cycle and 3 == 0):
+    if robot[n].shields_up and (game_cycle & 3 == 0):
         robot[n].heat += 1
     if not robot[n].shields_up:
         if robot[n].heat > 0:
