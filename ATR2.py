@@ -2983,11 +2983,9 @@ def do_robot(n):
 
     # Time slice
     robot[n].time_left = time_slice
-    if (robot[n].time_left > robot[n].robot_time_limit) and \
-       (robot[n].robot_time_limit > 0):
+    if (robot[n].time_left > robot[n].robot_time_limit) and (robot[n].robot_time_limit > 0):
         robot[n].time_left = robot[n].robot_time_limit
-    if (robot[n].time_left > robot[n].max_time) and \
-       (robot[n].max_time > 0):
+    if (robot[n].time_left > robot[n].max_time) and (robot[n].max_time > 0):
         robot[n].time_left = robot[n].max_time
     executed = 0
 
@@ -3193,6 +3191,7 @@ def do_mine(n, m):
             robot[n].mine[m].y = -1
         else:
             if graphix and (game_cycle & 1 == 0):
+                pass
                 '''main_viewport;
                 setcolor(robot_color(n));
                 line(round(x*screen_scale)+screen_x,round(y*screen_scale)+screen_y-1,
