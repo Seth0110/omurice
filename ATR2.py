@@ -685,7 +685,6 @@ def print_code(n, p):
     print('\n')
 
 def parse1(n, p, s):
-    #pdb.set_trace()
     global numlabels
     ss = ''
     for i in range(max_op-1):
